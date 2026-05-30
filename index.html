@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Khu Rừng Đen Tối</title>
+    <style>
+        :root {
+            --primary-color: #ffffff;
+            --bg-color: #000000;
+            --box-bg: rgba(0, 0, 0, 0.85);
+            --border-color: #8a0303;
+            --hover-bg: rgba(138, 3, 3, 0.3);
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-color);
+            font-family: 'Times New Roman', Times, serif;
+            overflow: hidden;
+            color: var(--primary-color);
+        }
+
+        #game-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: center;
+        }
+
+        #background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('darkforest_bg.jpg');
+            background-size: cover;
+            background-position: center;
+            z-index: 1;
+            transition: background-image 2s ease-in-out;
+        }
+
+        #blood-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('blood_overlay.webp');
+            background-size: cover;
+            background-position: center;
+            opacity: 0;
+            z-index: 3;
+            pointer-events: none;
+            transition: opacity 3s ease-in;
+            mix-blend-mode: multiply;
+        }
+
+        #character {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            height: 90vh;
+            max-width: 90vw;
+            z-index: 2;
+            object-fit: contain;
+            filter: drop-shadow(0 0 20px rgba(0,0,0,0.8)) contrast(1.2) brightness(0.8);
+            transition: opacity 2s ease, transform 0.5s ease;
+        }
+
+        #ui-layer {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 800px;
+            padding: 20px;
+            box-sizing: border-box;
+            margin-bottom: 20px;
+        }
+
+        #dialogue-box {
+            background-color: var(--box-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 5px;
+            padding: 20px;
+            box-shadow: 0 0 15px rgba(138, 3, 3, 0.5);
+            min-height: 120px;
+        }
+
+        #speaker-name {
+            font-size: 1.5rem;
+            color: #ff3333;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px #000;
+        }
+
+        #dialogue-text {
+            font-size: 1.2rem;
+            line-height: 1.5;
+            text-shadow: 1px 1px 2px #000;
+            min-height: 60px;
+        }
+
+        #choices-container {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .choice-btn {
+            background-color: var(--box-bg);
+            border: 1px solid var(--border-color);
+            color: var(--primary-color);
+            padding: 15px;
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 1.1rem;
+            cursor: pointer;
+            text-align: left;
+            transition: background-color 0.3s, transform 0.1s;
+            border-radius: 3px;
+        }
+
+        .choice-btn:hover {
+            background-color: var(--hover-bg);
+            transform: translateX(5px);
+        }
+
+        #ending-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 20;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 2s ease;
+        }
+
+        #ending-text {
+            font-size: 4rem;
+            color: #ff0000;
+            font-weight: bold;
+            text-shadow: 0 0 20px #ff0000, 2px 2px 5px #000;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        #restart-btn {
+            background-color: transparent;
+            border: 2px solid #fff;
+            color: #fff;
+            padding: 10px 30px;
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        #restart-btn:hover {
+            background-color: #fff;
+            color: #000;
+        }
+
+        .shake {
+            animation: shake 0.5s;
+            animation-iteration-count: infinite;
+        }
+
+        @keyframes shake {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            10% { transform: translate(-1px, -2px) rotate(-1deg); }
+            20% { transform: translate(-3px, 0px) rotate(1deg); }
+            30% { transform: translate(3px, 2px) rotate(0deg); }
+            40% { transform: translate(1px, -1px) rotate(1deg); }
+            50% { transform: translate(-1px, 2px) rotate(-1deg); }
+            60% { transform: translate(-3px, 1px) rotate(0deg); }
+            70% { transform: translate(3px, 1px) rotate(-1deg); }
+            80% { transform: translate(-1px, -1px) rotate(1deg); }
+            90% { transform: translate(1px, 2px) rotate(0deg); }
+            100% { transform: translate(1px, -2px) rotate(-1deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="game-container">
+        <div id="background"></div>
+        <div id="blood-overlay"></div>
+        
+        <img id="character" src="anderson_char.webp" alt="Anderson">
+        
+        <div id="ui-layer">
+            <div id="dialogue-box">
+                <div id="speaker-name">Anderson</div>
+                <div id="dialogue-text"></div>
+            </div>
+            
+            <div id="choices-container">
+                <!-- Choices will be injected here by JS -->
+            </div>
+        </div>
+    </div>
+
+    <div id="ending-screen">
+        <div id="ending-text"></div>
+        <button id="restart-btn" onclick="startGame()">Chơi Lại</button>
+    </div>
+
+    <script>
+        const storyNodes = {
+            0: {
+                text: "Đêm nay thật lạnh lẽo... Cậu có ngửi thấy mùi máu tanh lẫn trong sương mờ không? Nó làm ta thấy cồn cào trong dạ dày...",
+                choices: [
+                    { text: "Ông là ai? Tại sao lại tiếp cận tôi?", next: 1 },
+                    { text: "Tôi không ngửi thấy gì cả, tôi chỉ muốn rời khỏi đây ngay lập tức.", next: 2 }
+                ]
+            },
+            1: {
+                text: "Ta ư? Chỉ là một kẻ lang thang thích thu thập những mảnh xương vụn. Cậu có một bộ xương rất đẹp đấy... Đặc biệt là phần xương cổ.",
+                choices: [
+                    { text: "Đừng lại gần! Tôi có vũ khí đấy!", next: 3 },
+                    { text: "Làm ơn, gia đình tôi đang đợi tôi về nhà...", next: 4 }
+                ]
+            },
+            2: {
+                text: "Rời khỏi đây sao? Rừng đã khóa chặt cậu rồi. Cậu có nghe thấy tiếng nhai rào rạo ở bụi cây đằng kia không? Bọn chúng cũng đang rất đói.",
+                choices: [
+                    { text: "Ông bị điên rồi! (Cố gắng bỏ chạy)", next: 3 },
+                    { text: "Vậy tôi phải làm sao để được sống sót?", next: 5 }
+                ]
+            },
+            3: {
+                text: "Một lựa chọn ngu ngốc... Ta rất thích những con mồi biết giãy giụa. Tiếng thét của cậu sẽ là bản nhạc tuyệt vời nhất đêm nay.",
+                choices: [],
+                ending: "bad"
+            },
+            4: {
+                text: "Gia đình? Tình yêu thương thật kinh tởm, nhưng nó khiến mùi vị thịt của cậu bớt ngon đi một chút... Thôi được rồi, nể tình màn đêm tĩnh lặng này, cút đi trước khi ta đổi ý.",
+                choices: [],
+                ending: "good"
+            },
+            5: {
+                text: "Hãy để lại cho ta một bộ phận trên cơ thể cậu... Một ngón tay, hoặc một con mắt. Đổi lấy phần đời còn lại. Một sự trao đổi công bằng chứ?",
+                choices: [
+                    { text: "Không bao giờ! Tôi thà chết còn hơn!", next: 3 },
+                    { text: "Ông... ông muốn ngón tay nào...", next: 6 }
+                ]
+            },
+            6: {
+                text: "Ha ha ha... Ta đùa thôi. Sự tuyệt vọng và hèn nhát trong mắt cậu đã làm ta thỏa mãn rồi. Đi đi, và đừng bao giờ quay đầu lại nhìn khu rừng này nữa.",
+                choices: [],
+                ending: "creepy_good"
+            }
+        };
+
+        let isTyping = false;
+        let typeTimeout;
+
+        function typeWriter(text, elementId, speed = 40) {
+            return new Promise(resolve => {
+                const element = document.getElementById(elementId);
+                element.innerHTML = '';
+                let i = 0;
+                isTyping = true;
+                
+                function type() {
+                    if (i < text.length) {
+                        element.innerHTML += text.charAt(i);
+                        i++;
+                        typeTimeout = setTimeout(type, speed);
+                    } else {
+                        isTyping = false;
+                        resolve();
+                    }
+                }
+                type();
+            });
+        }
+
+        async function renderNode(nodeId) {
+            const node = storyNodes[nodeId];
+            const choicesContainer = document.getElementById('choices-container');
+            choicesContainer.innerHTML = ''; // Clear old choices
+
+            if (node.ending) {
+                await typeWriter(node.text, 'dialogue-text');
+                handleEnding(node.ending);
+                return;
+            }
+
+            await typeWriter(node.text, 'dialogue-text');
+
+            node.choices.forEach(choice => {
+                const button = document.createElement('button');
+                button.className = 'choice-btn';
+                button.innerText = choice.text;
+                button.onclick = () => {
+                    if(!isTyping) {
+                        renderNode(choice.next);
+                    }
+                };
+                choicesContainer.appendChild(button);
+            });
+        }
+
+        function handleEnding(type) {
+            const bg = document.getElementById('background');
+            const blood = document.getElementById('blood-overlay');
+            const character = document.getElementById('character');
+            const endingScreen = document.getElementById('ending-screen');
+            const endingText = document.getElementById('ending-text');
+            const uiLayer = document.getElementById('ui-layer');
+
+            uiLayer.style.display = 'none';
+
+            setTimeout(() => {
+                if (type === 'bad') {
+                    bg.style.backgroundImage = "url('meat_bg.webp')";
+                    blood.style.opacity = '0.8';
+                    document.body.classList.add('shake');
+                    character.style.transform = "translateX(-50%) scale(1.5)";
+                    character.style.opacity = '0';
+                    
+                    setTimeout(() => {
+                        document.body.classList.remove('shake');
+                        endingScreen.style.opacity = '1';
+                        endingScreen.style.pointerEvents = 'auto';
+                        endingText.innerText = 'BẠN ĐÃ TRỞ THÀNH BỮA TỐI';
+                    }, 3000);
+                } else {
+                    character.style.opacity = '0';
+                    
+                    setTimeout(() => {
+                        endingScreen.style.opacity = '1';
+                        endingScreen.style.pointerEvents = 'auto';
+                        endingText.innerText = type === 'creepy_good' ? 'BẠN ĐÃ THOÁT CHẾT... NHƯNG SỰ ÁM ẢNH SẼ CÒN MÃI' : 'BẠN ĐÃ SỐNG SÓT';
+                        endingText.style.color = '#ffffff';
+                        endingText.style.textShadow = '0 0 10px #ffffff, 2px 2px 5px #000';
+                    }, 2000);
+                }
+            }, 1000);
+        }
+
+        function startGame() {
+            // Reset state
+            const bg = document.getElementById('background');
+            const blood = document.getElementById('blood-overlay');
+            const character = document.getElementById('character');
+            const endingScreen = document.getElementById('ending-screen');
+            const uiLayer = document.getElementById('ui-layer');
+
+            bg.style.backgroundImage = "url('darkforest_bg.jpg')";
+            blood.style.opacity = '0';
+            character.style.opacity = '1';
+            character.style.transform = "translateX(-50%) scale(1)";
+            endingScreen.style.opacity = '0';
+            endingScreen.style.pointerEvents = 'none';
+            uiLayer.style.display = 'block';
+            document.body.classList.remove('shake');
+
+            clearTimeout(typeTimeout);
+            renderNode(0);
+        }
+
+        // Start the game on load
+        window.onload = startGame;
+    </script>
+</body>
+</html>
