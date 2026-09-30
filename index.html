@@ -1799,8 +1799,65 @@
                 bgm: "house",
                 text: `Đêm đã về khuya. Căn phòng ngủ tối tăm ẩm thấp, chỉ có tiếng gió rít qua khe vách gỗ. Cơn kiệt sức nặng trĩu đè lên mí mắt bạn.\n\nNhưng sâu trong tiềm thức, một linh cảm lạnh gáy mách bảo có điều gì đó cực kỳ ma quái đang diễn ra ngoài gian bếp...`,
                 choices: [
-                    { text: "ĐI NGỦ (Quá kiệt sức, nhắm mắt ngủ một giấc say)", next: "ending_sleep" },
+                    { text: "ĐI NGỦ (Quá kiệt sức, nhắm mắt ngủ một giấc say)", next: "sleep_darkness" },
                     { text: "GIỮ TỈNH TÁO (Nghi ngờ, giả vờ ngủ để rình xem)", next: 10, primary: true }
+                ]
+            },
+            "sleep_darkness": {
+                chapter: "CHƯƠNG 2: BÓNG TỐI VÔ TẬN",
+                bg: "assets/images/backgrounds/maroa_room_dark.jpg",
+                speaker: "Người Dẫn Chuyện",
+                speakerTag: "Chìm Sâu",
+                char: "",
+                charClass: "",
+                bgm: "house",
+                onEnter: () => {
+                    const bg = document.getElementById('background');
+                    if (bg) bg.style.filter = "brightness(0.12) contrast(1.3)";
+                    document.getElementById('blood-overlay').style.opacity = '0';
+                },
+                text: `Bạn buông xuôi, nhắm nghiền hai mắt lại. Cơn kiệt sức nặng như chì cùng thứ hương liệu ma quái trong chén trà bắt đầu ngấm sâu vào từng mạch máu.\n\nMọi âm thanh của thế giới bên ngoài dần lịm tắt... Không gian xung quanh hóa thành một màn đêm đen đặc, thăm thẳm không đáy. Ý thức của bạn chầm chậm tan biến, trôi dạt vào cõi vô định buốt lạnh...`,
+                choices: [
+                    { text: "... (Ý thức chìm sâu vào màn đêm vô tận)", next: "sleep_awakening" }
+                ]
+            },
+            "sleep_awakening": {
+                chapter: "CHƯƠNG 2: TỈNH GIẤC TRÊN BÀN MỔ",
+                bg: "assets/images/backgrounds/maroa_kitchen.jpg",
+                speaker: "Người Dẫn Chuyện",
+                speakerTag: "Kinh Hoàng",
+                char: "assets/images/characters/maroa_angry.png",
+                charClass: "angry-glow",
+                bgm: "house",
+                onEnter: () => {
+                    const bg = document.getElementById('background');
+                    if (bg) bg.style.filter = "brightness(0.85) contrast(1.1)";
+                    flashScreen();
+                    triggerShake(800);
+                    playSFX('rend');
+                },
+                text: `XOẸT... XOẸT... RỘT!\n\nTiếng mài sắt rợn người cùng làn khói nóng nực phả thẳng vào mặt khiến bạn bàng hoàng choàng tỉnh!\n\nNhưng bạn không còn nằm trên giường. Bạn kinh hãi nhận ra hai tay hai chân mình đã bị trói chặt gập vào chiếc bàn đá xẻ thịt nhầy nhụa vết máu tanh! Bên cạnh, chiếc vạc đồng khổng lồ đang sôi ùng ục, sủi bọt ngùn ngụt.\n\nNgay trước mắt bạn, Maroa đang đứng sừng sững cúi sát xuống, trên tay lăm lăm con dao phay đồ tể sáng loáng, đôi mắt trợn trừng đỏ ngầu như quỷ dữ!`,
+                choices: [
+                    { text: "Kinh hãi ú ớ giãy giụa: 'Maroa?! Cởi trói cho tôi! Anh định làm cái quái gì vậy?!'", next: "sleep_confrontation" }
+                ]
+            },
+            "sleep_confrontation": {
+                chapter: "CHƯƠNG 2: THỊT TƯƠI CHO NỒI CANH",
+                bg: "assets/images/backgrounds/maroa_kitchen.jpg",
+                speaker: "Maroa",
+                speakerTag: "Đồ Tể Khát Máu",
+                char: "assets/images/characters/maroa_angry.png",
+                charClass: "angry-glow",
+                bgm: "chase",
+                onEnter: () => {
+                    flashScreen();
+                    triggerShake(1200);
+                    playSFX('screech');
+                    document.getElementById('blood-overlay').style.opacity = '0.5';
+                },
+                text: `Maroa nghiêng đầu, kề sát lưỡi dao phay lạnh toát lên cổ họng bạn, rồi ngửa cổ cười sằng sặc xé toạc màn đêm:\n\n'Khục khục khục... Tỉnh rồi sao, con lợn béo bở của ta?! Thuốc ngủ ngấm sâu thế mà vẫn mở được mắt cơ đấy! Đừng phí sức giãy giụa vô ích, dây thừng trói lợn này càng giãy sẽ càng siết nát da thịt ngươi thôi!\n\nNước hầm trong vạc đã sôi sùng sục rồi... Ta sẽ lột sạch da, chặt đứt từng khớp xương và ninh nhừ thịt ngươi cùng thảo mộc rừng! Đêm nay, Maroa này sẽ có một bữa tiệc no nê! HA HA HA!'`,
+                choices: [
+                    { text: "Kinh hoàng hét lên trong tuyệt vọng khi lưỡi dao phay vung cao chém xuống!", next: "ending_sleep" }
                 ]
             },
             10: {
@@ -2131,6 +2188,9 @@
             document.getElementById('blood-overlay').style.opacity = '0';
             document.body.classList.remove('shake');
 
+            const bg = document.getElementById('background');
+            if (bg) bg.style.filter = "brightness(0.85) contrast(1.1)";
+
             const charImg = document.getElementById('character');
             charImg.src = '';
             charImg.style.display = 'none';
@@ -2271,13 +2331,14 @@
             
             playSFX('screech');
             flashScreen();
-            triggerShake(600);
+            triggerShake(1000);
             bg.style.backgroundImage = "url('assets/images/backgrounds/meat_bg.webp')";
-            blood.style.opacity = '0.9';
+            bg.style.filter = "brightness(0.85) contrast(1.1)";
+            blood.style.opacity = '1';
 
             showEndingScreen(
                 "BẠN ĐÃ TRỞ THÀNH BỮA TỐI",
-                "Trong cơn mê mệt vì kiệt sức, bạn không hề biết rằng con dao phay của Maroa đã vung lên... Bạn bị chặt thành từng mảnh và trở thành món canh thịt trong chiếc vạc sôi sùng sục của gã đồ tể.",
+                "Lưỡi dao phay đồ tể vung xuống xé toạc cổ họng bạn trong bóng tối lạnh lẽo... Tiếng cười man rợ của Maroa vang vọng khi hắn chặt bạn thành từng mảnh và thả vào chiếc vạc nước sôi nghi ngút khói. Bạn đã vĩnh viễn trở thành bữa tối của gã đồ tể.",
                 [
                     { text: "Bắt Đầu Lại Đầu Chương", action: restartCurrentChapter },
                     { text: "Chơi Lại Từ Đầu", action: startGame }
