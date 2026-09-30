@@ -173,7 +173,372 @@
             letter-spacing: 2px;
             text-shadow: 0 0 10px rgba(255, 0, 0, 0.7);
             border-left: 3px solid var(--accent-red);
-            padding-left: 10px;
+            padding: 4px 12px;
+            border-radius: 0 6px 6px 0;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.25s ease;
+            user-select: none;
+            background: rgba(0, 0, 0, 0.35);
+        }
+
+        #chapter-badge.clickable-chapter {
+            cursor: pointer;
+            border-left-color: #ff3333;
+        }
+
+        #chapter-badge.clickable-chapter:hover {
+            background: rgba(255, 50, 50, 0.2);
+            color: #ff9999;
+            text-shadow: 0 0 18px rgba(255, 60, 60, 1), 0 0 35px rgba(255, 0, 0, 0.8);
+            transform: translateX(3px);
+            box-shadow: 0 0 15px rgba(255, 0, 0, 0.35);
+        }
+
+        #chapter-badge.locked-chapter {
+            cursor: pointer;
+            opacity: 0.88;
+        }
+
+        #chapter-badge.locked-chapter:hover {
+            background: rgba(255, 255, 255, 0.05);
+            opacity: 1;
+        }
+
+        .chapter-badge-text {
+            display: inline-block;
+        }
+
+        .chapter-select-pill {
+            font-size: 0.72rem;
+            background: rgba(255, 50, 50, 0.25);
+            border: 1px solid rgba(255, 80, 80, 0.6);
+            color: #ffdddd;
+            padding: 2px 8px;
+            border-radius: 12px;
+            letter-spacing: 1px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            box-shadow: 0 0 8px rgba(255, 0, 0, 0.3);
+            animation: pulse-badge 2.5s infinite;
+        }
+
+        @keyframes pulse-badge {
+            0%, 100% { box-shadow: 0 0 6px rgba(255, 50, 50, 0.3); border-color: rgba(255, 80, 80, 0.6); }
+            50% { box-shadow: 0 0 12px rgba(255, 50, 50, 0.8); border-color: #ff3333; color: #fff; }
+        }
+
+        .chapter-lock-pill {
+            font-size: 0.75rem;
+            opacity: 0.65;
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 6px;
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(120, 120, 120, 0.3);
+        }
+
+        #game-toast {
+            position: absolute;
+            top: 60px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-15px);
+            background: rgba(25, 5, 5, 0.95);
+            border: 1px solid #ff4444;
+            color: #ffdddd;
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-size: 0.88rem;
+            letter-spacing: 0.5px;
+            z-index: 9999;
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
+            pointer-events: none;
+            opacity: 0;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        #game-toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* Chapter Select Modal & Overlay */
+        #chapter-modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.82);
+            z-index: 9990;
+            backdrop-filter: blur(6px);
+        }
+
+        #chapter-modal-overlay.active {
+            display: block;
+        }
+
+        #chapter-select-modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 92%;
+            max-width: 920px;
+            max-height: 88vh;
+            background: #0d0707;
+            border: 2px solid var(--accent-red);
+            border-radius: 8px;
+            box-shadow: 0 0 35px rgba(255, 0, 0, 0.55), inset 0 0 15px rgba(0, 0, 0, 0.9);
+            z-index: 9991;
+            flex-direction: column;
+            color: #eee;
+            overflow: hidden;
+            font-family: inherit;
+        }
+
+        #chapter-select-modal.active {
+            display: flex;
+        }
+
+        .chapter-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 20px;
+            background: rgba(45, 8, 8, 0.85);
+            border-bottom: 1px solid rgba(255, 50, 50, 0.35);
+        }
+
+        .chapter-modal-title {
+            font-size: 1.15rem;
+            font-weight: bold;
+            color: #ff4d4d;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(255, 50, 50, 0.7);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chapter-modal-close-btn {
+            background: transparent;
+            border: 1px solid #ff4d4d;
+            color: #ff4d4d;
+            padding: 5px 14px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+
+        .chapter-modal-close-btn:hover {
+            background: #ff4d4d;
+            color: #000;
+        }
+
+        .chapter-modal-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 20px;
+            background: rgba(25, 0, 0, 0.65);
+            border-bottom: 1px dashed rgba(255, 50, 50, 0.25);
+            font-size: 0.85rem;
+            color: #aaa;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .chapter-progress-stat span {
+            color: #55ff77;
+            font-weight: bold;
+        }
+
+        .chapter-unlock-all-btn {
+            background: rgba(255, 170, 0, 0.15);
+            border: 1px solid rgba(255, 170, 0, 0.4);
+            color: #ffbb33;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 0.76rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        .chapter-unlock-all-btn:hover {
+            background: rgba(255, 170, 0, 0.3);
+            border-color: #ffaa00;
+            color: #fff;
+        }
+
+        .chapter-modal-body {
+            padding: 16px 20px;
+            overflow-y: auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 14px;
+            max-height: calc(88vh - 120px);
+        }
+
+        .chapter-card {
+            background-size: cover;
+            background-position: center;
+            border: 1px solid rgba(160, 30, 30, 0.45);
+            border-radius: 6px;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.25s ease;
+            box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.85);
+        }
+
+        .chapter-card.unlocked:hover {
+            border-color: #ff4444;
+            transform: translateY(-3px);
+            box-shadow: 0 4px 15px rgba(255, 0, 0, 0.45), inset 0 0 20px rgba(0, 0, 0, 0.7);
+        }
+
+        .chapter-card.locked {
+            opacity: 0.6;
+            border-color: rgba(90, 90, 90, 0.35);
+            filter: grayscale(0.4);
+        }
+
+        .chapter-card.current-playing {
+            border-color: #00d2ff;
+            box-shadow: 0 0 15px rgba(0, 210, 255, 0.4), inset 0 0 20px rgba(0, 0, 0, 0.8);
+        }
+
+        .chapter-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .chapter-badge-tag-label {
+            font-size: 0.72rem;
+            font-weight: bold;
+            color: #ff7777;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .chapter-status-pill {
+            font-size: 0.68rem;
+            padding: 2px 7px;
+            border-radius: 10px;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+
+        .status-completed {
+            background: rgba(0, 255, 136, 0.2);
+            color: #00ff88;
+            border: 1px solid rgba(0, 255, 136, 0.4);
+        }
+
+        .status-unlocked {
+            background: rgba(255, 170, 0, 0.2);
+            color: #ffbb33;
+            border: 1px solid rgba(255, 170, 0, 0.4);
+        }
+
+        .status-current {
+            background: rgba(0, 210, 255, 0.25);
+            color: #00d2ff;
+            border: 1px solid rgba(0, 210, 255, 0.6);
+            box-shadow: 0 0 8px rgba(0, 210, 255, 0.4);
+        }
+
+        .status-locked {
+            background: rgba(70, 70, 70, 0.3);
+            color: #888;
+            border: 1px solid rgba(120, 120, 120, 0.3);
+        }
+
+        .chapter-card-title {
+            font-size: 1rem;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 6px;
+            text-shadow: 0 0 8px rgba(0, 0, 0, 0.9);
+        }
+
+        .chapter-card-desc {
+            font-size: 0.8rem;
+            color: #bbb;
+            line-height: 1.35;
+            margin-bottom: 14px;
+            flex-grow: 1;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+        }
+
+        .chapter-card-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .chapter-jump-btn {
+            background: rgba(255, 50, 50, 0.2);
+            border: 1px solid rgba(255, 60, 60, 0.5);
+            color: #ffdede;
+            padding: 8px 10px;
+            border-radius: 4px;
+            font-size: 0.82rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+            font-family: inherit;
+        }
+
+        .chapter-jump-btn:hover {
+            background: rgba(255, 50, 50, 0.4);
+            border-color: #ff3333;
+            color: #fff;
+            box-shadow: 0 0 10px rgba(255, 0, 0, 0.4);
+            transform: translateY(-1px);
+        }
+
+        .chapter-jump-btn.sub-btn {
+            background: rgba(30, 30, 30, 0.55);
+            border-color: rgba(130, 130, 130, 0.35);
+            color: #ccc;
+            font-size: 0.75rem;
+            padding: 5px 8px;
+        }
+
+        .chapter-jump-btn.sub-btn:hover {
+            background: rgba(70, 70, 70, 0.6);
+            border-color: #aaa;
+            color: #fff;
+        }
+
+        .chapter-jump-btn.btn-locked {
+            background: rgba(30, 20, 20, 0.3);
+            border-color: rgba(80, 60, 60, 0.3);
+            color: #777;
+            cursor: pointer;
+        }
+
+        .chapter-jump-btn.btn-locked:hover {
+            background: rgba(60, 25, 25, 0.5);
+            border-color: #aa4444;
+            color: #ffaaaa;
         }
 
         #audio-btn {
@@ -852,6 +1217,37 @@
                 font-size: 1.05rem;
             }
 
+            /* Responsive Top Bar & Chapter Select */
+            #top-bar {
+                padding: 8px 10px;
+            }
+            #chapter-badge {
+                font-size: 0.85rem;
+                letter-spacing: 0.5px;
+                padding: 3px 8px;
+                gap: 6px;
+            }
+            .chapter-select-pill {
+                font-size: 0.65rem;
+                padding: 1px 6px;
+            }
+            #chapter-select-modal {
+                width: 96%;
+                max-height: 92vh;
+            }
+            .chapter-modal-body {
+                grid-template-columns: 1fr;
+                padding: 12px;
+                gap: 10px;
+            }
+            #game-toast {
+                font-size: 0.78rem;
+                padding: 6px 14px;
+                max-width: 90vw;
+                white-space: normal;
+                text-align: center;
+            }
+
             /* Optimized Mobile Boss Fight UI */
             #battle-screen {
                 justify-content: space-between;
@@ -1161,9 +1557,13 @@
         <div id="flash-overlay"></div>
 
         <div id="top-bar">
-            <div id="chapter-badge">CHƯƠNG 1: BÓNG MA TRONG RỪNG</div>
+            <div id="chapter-badge" onclick="handleChapterBadgeClick()" title="Chọn Chương">
+                <span class="chapter-badge-text">CHƯƠNG 1: BÓNG MA TRONG RỪNG</span>
+            </div>
             <button id="audio-btn" onclick="toggleAudio()">ÂM THANH: BẬT</button>
         </div>
+
+        <div id="game-toast"></div>
 
         <img id="character" src="assets/images/characters/anderson_char.webp" alt="Character">
 
@@ -1282,12 +1682,12 @@
                     <button class="skill-btn" id="skill-dragon-btn" onclick="executePlayerTurn('dragon')">
                         <span class="skill-name">Long Hống Kích</span>
                         <span class="skill-desc">Sát chiêu phá giáp cực mạnh.</span>
-                        <span class="skill-cost">40 Ki | 55-70 ST</span>
+                        <span class="skill-cost">50 Ki | 55-70 ST</span>
                     </button>
                     <button class="skill-btn" id="skill-heal-btn" onclick="executePlayerTurn('heal')">
                         <span class="skill-name">Khí Công Hồi Xuân</span>
                         <span class="skill-desc">Hồi phục sinh lực tức thì.</span>
-                        <span class="skill-cost">25 Ki | +55 HP</span>
+                        <span class="skill-cost">30 Ki | +45 HP</span>
                     </button>
                 </div>
             </div>
@@ -1301,6 +1701,25 @@
                 <button class="action-button primary" onclick="restartCurrentChapter()">Bắt Đầu Lại Đầu Chương</button>
                 <button class="action-button" onclick="startGame()">Chơi Lại Từ Đầu</button>
             </div>
+        </div>
+
+        <div id="chapter-modal-overlay" onclick="closeChapterSelectModal()"></div>
+        <div id="chapter-select-modal">
+            <div class="chapter-modal-header">
+                <div class="chapter-modal-title">
+                    <span>&#128214;</span> CHỌN CHƯƠNG TRUYỆN
+                </div>
+                <button class="chapter-modal-close-btn" onclick="closeChapterSelectModal()">ĐÓNG [ESC]</button>
+            </div>
+            <div class="chapter-modal-toolbar">
+                <div class="chapter-progress-stat" id="chapter-progress-stat">
+                    Chương đã vượt qua: <span>0 / 6</span>
+                </div>
+                <button class="chapter-unlock-all-btn" id="chapter-unlock-all-btn" onclick="toggleUnlockAllChapters()">
+                    &#128275; Mở Khóa Tự Do Tất Cả Chương
+                </button>
+            </div>
+            <div class="chapter-modal-body" id="chapter-cards-grid"></div>
         </div>
 
         <div id="admin-overlay" onclick="toggleAdminConsole(false)"></div>
@@ -1373,6 +1792,10 @@
                     <button class="admin-btn cheat" onclick="adminCheat('winchase')">
                         <strong>Thắng Ngay Màn Rượt Đuổi</strong>
                         Vượt qua vực thẳm an toàn
+                    </button>
+                    <button class="admin-btn cheat" onclick="adminCheat('unlock_chapters')">
+                        <strong>Mở Khóa Toàn Bộ Chọn Chương</strong>
+                        Mở khóa tính năng và tất cả các chương
                     </button>
                 </div>
             </div>
@@ -2160,19 +2583,339 @@
             }, duration);
         }
 
+        let toastTimeout = null;
+        function showGameToast(msg) {
+            const toast = document.getElementById('game-toast');
+            if (!toast) return;
+            toast.innerText = msg;
+            toast.classList.add('show');
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2800);
+        }
+
+        const CHAPTER_LIST = [
+            {
+                id: 'ch1',
+                key: 'ch1_start',
+                badge: 'CHƯƠNG 1',
+                title: 'Bóng Ma Trong Rừng',
+                desc: 'Anderson thức tỉnh, bắt đầu cơn ác mộng rùng rợn trong rừng sâu.',
+                bg: 'assets/images/backgrounds/darkforest_bg.jpg',
+                subOptions: [
+                    { label: 'Khởi Đầu (Node 0)', key: 'ch1_start' },
+                    { label: 'Thoát Nạn & Maroa', key: 'ch1_maroa' }
+                ]
+            },
+            {
+                id: 'ch2',
+                key: 'ch2_house',
+                badge: 'CHƯƠNG 2',
+                title: 'Căn Nhà Của Maroa',
+                desc: 'Bữa tối canh thịt rừng nồng mùi tanh & Chân tướng tên đồ tể quái thai.',
+                bg: 'assets/images/backgrounds/maroa_house.jpg',
+                subOptions: [
+                    { label: 'Căn Nhà Gỗ (Node 7)', key: 'ch2_house' },
+                    { label: 'Maroa Cuồng Nộ (Node 11)', key: 'ch2_angry' }
+                ]
+            },
+            {
+                id: 'chase',
+                key: 'chase',
+                badge: 'MÀN RƯỢT ĐUỔI',
+                title: 'Trốn Chạy Đồ Tể Maroa',
+                desc: 'Mini-game: Né bẫy gấu và rễ cây ma quái để thoát khỏi lưỡi dao của Maroa.',
+                bg: 'assets/images/backgrounds/chase_woods.jpg',
+                subOptions: [
+                    { label: 'Bắt Đầu Rượt Đuổi', key: 'chase' }
+                ]
+            },
+            {
+                id: 'ch3',
+                key: 'ch3_dojo',
+                badge: 'CHƯƠNG 3',
+                title: 'Đạo Của Ninja',
+                desc: 'Bái kiến Ninja Đạo, rèn luyện bí thuật và nhận lấy thanh Hắc Long Kiếm.',
+                bg: 'assets/images/backgrounds/ninja_dojo.jpeg',
+                subOptions: [
+                    { label: 'Đền Cổ Ninja (Node 12)', key: 'ch3_dojo' },
+                    { label: 'Nhận Hắc Long Kiếm (Node 16)', key: 'ch3_skills' }
+                ]
+            },
+            {
+                id: 'boss',
+                key: 'boss_dialogue',
+                badge: 'CHƯƠNG KẾT',
+                title: 'Quyết Chiến Anderson',
+                desc: 'Tế Đàn Huyết Nguyệt - Trận quyết đấu theo lượt sống còn bảo vệ khu rừng.',
+                bg: 'assets/images/backgrounds/boss_altar.jpg',
+                subOptions: [
+                    { label: 'Đối Thoại Tế Đàn (Node 17)', key: 'boss_dialogue' },
+                    { label: 'Vào Thẳng Đánh Boss', key: 'boss_battle' }
+                ]
+            },
+            {
+                id: 'victory',
+                key: 'victory',
+                badge: 'HẬU CHIẾN',
+                title: 'Chiến Thắng Huy Hoàng',
+                desc: 'Hạ gục Anderson, sự hối hận của ác thể và sự vinh danh Đại Chiến Binh.',
+                bg: 'assets/images/backgrounds/boss_altar.jpg',
+                subOptions: [
+                    { label: 'Hậu Chiến & Đối Thoại (Node 22)', key: 'victory' }
+                ]
+            }
+        ];
+
+        function getClearedChapters() {
+            try {
+                const raw = localStorage.getItem('webg_cleared_chapters');
+                if (raw) return JSON.parse(raw);
+            } catch (e) {}
+            return [];
+        }
+
+        function getUnlockedChapters() {
+            try {
+                const raw = localStorage.getItem('webg_unlocked_chapters');
+                if (raw) return JSON.parse(raw);
+            } catch (e) {}
+            return ['ch1'];
+        }
+
+        function hasPlayedThroughChapter() {
+            try {
+                if (localStorage.getItem('webg_unlock_all') === 'true') return true;
+                if (localStorage.getItem('webg_has_played_through') === 'true') return true;
+                const cleared = getClearedChapters();
+                return cleared.length > 0;
+            } catch (e) {
+                return false;
+            }
+        }
+
+        function setHasPlayedThrough(val) {
+            try {
+                localStorage.setItem('webg_has_played_through', val ? 'true' : 'false');
+            } catch (e) {}
+        }
+
+        function recordChapterCompleted(chapterId) {
+            let cleared = getClearedChapters();
+            if (!cleared.includes(chapterId)) {
+                cleared.push(chapterId);
+                try {
+                    localStorage.setItem('webg_cleared_chapters', JSON.stringify(cleared));
+                } catch (e) {}
+            }
+            setHasPlayedThrough(true);
+            updateChapterBadge();
+        }
+
+        function recordChapterProgress(chapterId) {
+            let unlocked = getUnlockedChapters();
+            if (!unlocked.includes(chapterId)) {
+                unlocked.push(chapterId);
+                try {
+                    localStorage.setItem('webg_unlocked_chapters', JSON.stringify(unlocked));
+                } catch (e) {}
+            }
+        }
+
+        let currentBadgeTitle = "CHƯƠNG 1: BÓNG MA TRONG RỪNG";
+
+        function updateChapterBadge(title) {
+            if (title) currentBadgeTitle = title;
+            const badge = document.getElementById('chapter-badge');
+            if (!badge) return;
+
+            const unlocked = hasPlayedThroughChapter();
+            if (unlocked) {
+                badge.className = 'clickable-chapter';
+                badge.title = "Nhấn để chọn chương bạn muốn chơi";
+                badge.innerHTML = `<span class="chapter-badge-text">${currentBadgeTitle}</span><span class="chapter-select-pill">&#9662; CHỌN CHƯƠNG</span>`;
+            } else {
+                badge.className = 'locked-chapter';
+                badge.title = "Hoàn thành ít nhất một chương để mở khóa Chọn Chương";
+                badge.innerHTML = `<span class="chapter-badge-text">${currentBadgeTitle}</span><span class="chapter-lock-pill" title="Chưa mở khóa">&#128274;</span>`;
+            }
+        }
+
+        function handleChapterBadgeClick() {
+            initSFX();
+            if (!hasPlayedThroughChapter()) {
+                playSFX('screech');
+                showGameToast("🔒 Bạn cần chơi qua ít nhất một chương để mở khóa tính năng Chọn Chương!");
+                return;
+            }
+            playSFX('dodge');
+            openChapterSelectModal();
+        }
+
+        function openChapterSelectModal() {
+            initSFX();
+            const modal = document.getElementById('chapter-select-modal');
+            const overlay = document.getElementById('chapter-modal-overlay');
+            if (!modal || !overlay) return;
+            renderChapterCards();
+            modal.classList.add('active');
+            overlay.classList.add('active');
+        }
+
+        function closeChapterSelectModal() {
+            initSFX();
+            const modal = document.getElementById('chapter-select-modal');
+            const overlay = document.getElementById('chapter-modal-overlay');
+            if (modal) modal.classList.remove('active');
+            if (overlay) overlay.classList.remove('active');
+        }
+
+        function toggleUnlockAllChapters() {
+            initSFX();
+            try {
+                const isAll = (localStorage.getItem('webg_unlock_all') === 'true');
+                const nextState = !isAll;
+                localStorage.setItem('webg_unlock_all', nextState ? 'true' : 'false');
+                if (nextState) {
+                    setHasPlayedThrough(true);
+                    playSFX('heal');
+                    showGameToast("🔓 Đã mở khóa tự do toàn bộ chương!");
+                } else {
+                    playSFX('dodge');
+                    showGameToast("🔒 Đã trở về chế độ mở khóa theo cốt truyện.");
+                }
+                updateChapterBadge();
+                renderChapterCards();
+            } catch (e) {}
+        }
+
+        function selectChapterFromModal(chapterKey, isUnlocked) {
+            initSFX();
+            if (!isUnlocked && localStorage.getItem('webg_unlock_all') !== 'true') {
+                const confirmed = confirm("Bạn chưa vượt qua chương này trong cốt truyện. Bạn có muốn chuyển thẳng tới chương này không?");
+                if (!confirmed) return;
+            }
+            closeChapterSelectModal();
+            jumpToChapter(chapterKey);
+        }
+
+        function renderChapterCards() {
+            const container = document.getElementById('chapter-cards-grid');
+            if (!container) return;
+
+            const cleared = getClearedChapters();
+            const unlocked = getUnlockedChapters();
+            const isUnlockAll = (localStorage.getItem('webg_unlock_all') === 'true');
+
+            const statElem = document.getElementById('chapter-progress-stat');
+            if (statElem) {
+                statElem.innerHTML = `Chương đã vượt qua: <span>${cleared.length} / 6</span>`;
+            }
+            const unlockAllBtn = document.getElementById('chapter-unlock-all-btn');
+            if (unlockAllBtn) {
+                unlockAllBtn.innerText = isUnlockAll ? "🔒 Trở Về Theo Tiến Độ" : "🔓 Mở Khóa Tự Do Tất Cả Chương";
+            }
+
+            let currentActId = 'ch1';
+            if (currentChapter.type === 'chase') {
+                currentActId = 'chase';
+            } else if (currentChapter.type === 'boss') {
+                currentActId = 'boss';
+            } else if (currentChapter.type === 'node') {
+                const id = currentChapter.id;
+                if (typeof id === 'number') {
+                    if (id < 7) currentActId = 'ch1';
+                    else if (id < 12) currentActId = 'ch2';
+                    else if (id < 17) currentActId = 'ch3';
+                    else if (id < 22) currentActId = 'boss';
+                    else currentActId = 'victory';
+                }
+            }
+
+            let html = '';
+            CHAPTER_LIST.forEach((chap) => {
+                const isCurrent = (chap.id === currentActId);
+                const isCompleted = cleared.includes(chap.id);
+                const isChapUnlocked = isUnlockAll || isCompleted || unlocked.includes(chap.id) || (chap.id === 'ch1');
+
+                let statusBadge = '';
+                if (isCurrent) {
+                    statusBadge = `<span class="chapter-status-pill status-current">● ĐANG CHƠI</span>`;
+                } else if (isCompleted) {
+                    statusBadge = `<span class="chapter-status-pill status-completed">&#10003; ĐÃ HOÀN THÀNH</span>`;
+                } else if (isChapUnlocked) {
+                    statusBadge = `<span class="chapter-status-pill status-unlocked">&#128275; ĐÃ MỞ KHÓA</span>`;
+                } else {
+                    statusBadge = `<span class="chapter-status-pill status-locked">&#128274; CHƯA QUA</span>`;
+                }
+
+                let buttonsHtml = '';
+                chap.subOptions.forEach((opt, optIdx) => {
+                    const btnClass = optIdx === 0
+                        ? (isChapUnlocked ? 'chapter-jump-btn' : 'chapter-jump-btn btn-locked')
+                        : (isChapUnlocked ? 'chapter-jump-btn sub-btn' : 'chapter-jump-btn sub-btn btn-locked');
+
+                    buttonsHtml += `
+                        <button class="${btnClass}" onclick="selectChapterFromModal('${opt.key}', ${isChapUnlocked})">
+                            ${opt.label} ${!isChapUnlocked ? ' [Chưa Qua]' : ''}
+                        </button>
+                    `;
+                });
+
+                html += `
+                    <div class="chapter-card ${isChapUnlocked ? 'unlocked' : 'locked'} ${isCurrent ? 'current-playing' : ''}" style="background-image: linear-gradient(rgba(10, 5, 5, 0.9), rgba(10, 5, 5, 0.92)), url('${chap.bg}');">
+                        <div class="chapter-card-header">
+                            <span class="chapter-badge-tag-label">${chap.badge}</span>
+                            ${statusBadge}
+                        </div>
+                        <div class="chapter-card-title">${chap.title}</div>
+                        <div class="chapter-card-desc">${chap.desc}</div>
+                        <div class="chapter-card-actions">
+                            ${buttonsHtml}
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
         let currentChapter = { type: 'node', id: 0 };
 
         function updateChapterCheckpoint(nodeId) {
             if (typeof nodeId === 'number') {
                 if (nodeId < 7) {
                     currentChapter = { type: 'node', id: 0 };
+                    recordChapterProgress('ch1');
                 } else if (nodeId >= 7 && nodeId < 12) {
                     currentChapter = { type: 'node', id: 7 };
+                    recordChapterCompleted('ch1');
+                    recordChapterProgress('ch2');
                 } else if (nodeId >= 12 && nodeId < 17) {
                     currentChapter = { type: 'node', id: 12 };
-                } else if (nodeId >= 17) {
+                    recordChapterCompleted('ch1');
+                    recordChapterCompleted('ch2');
+                    recordChapterCompleted('chase');
+                    recordChapterProgress('ch3');
+                } else if (nodeId >= 17 && nodeId < 22) {
                     currentChapter = { type: 'node', id: 17 };
+                    recordChapterCompleted('ch1');
+                    recordChapterCompleted('ch2');
+                    recordChapterCompleted('chase');
+                    recordChapterCompleted('ch3');
+                    recordChapterProgress('boss');
+                } else if (nodeId >= 22) {
+                    currentChapter = { type: 'node', id: 22 };
+                    recordChapterCompleted('ch1');
+                    recordChapterCompleted('ch2');
+                    recordChapterCompleted('chase');
+                    recordChapterCompleted('ch3');
+                    recordChapterCompleted('boss');
+                    recordChapterProgress('victory');
                 }
+            } else if (nodeId === 'maroa_rescue' || nodeId === 'maroa_invite') {
+                recordChapterProgress('ch1');
             }
         }
 
@@ -2234,7 +2977,7 @@
             const node = storyNodes[nodeId];
             if (!node) return;
 
-            document.getElementById('chapter-badge').innerText = node.chapter;
+            updateChapterBadge(node.chapter);
 
             const bg = document.getElementById('background');
             if (node.bg) {
@@ -2397,6 +3140,9 @@
 
         function startPlatformerChase() {
             currentChapter = { type: 'chase' };
+            recordChapterCompleted('ch1');
+            recordChapterCompleted('ch2');
+            recordChapterProgress('chase');
             document.getElementById('ui-layer').style.display = 'none';
             const charImg = document.getElementById('character');
             charImg.src = '';
@@ -2405,7 +3151,7 @@
             charImg.classList.add('hidden');
 
             document.getElementById('chase-screen').style.display = 'flex';
-            document.getElementById('chapter-badge').innerText = "MÀN RƯỢT ĐUỔI: TRỐN CHẠY ĐỒ TỂ MAROA";
+            updateChapterBadge("MÀN RƯỢT ĐUỔI: TRỐN CHẠY ĐỒ TỂ MAROA");
             
             // Background is darkforest_bg.jpg as requested
             document.getElementById('background').style.backgroundImage = "url('assets/images/backgrounds/darkforest_bg.jpg')";
@@ -2859,6 +3605,11 @@
 
         function startBossBattle() {
             currentChapter = { type: 'boss' };
+            recordChapterCompleted('ch1');
+            recordChapterCompleted('ch2');
+            recordChapterCompleted('chase');
+            recordChapterCompleted('ch3');
+            recordChapterProgress('boss');
             document.getElementById('ui-layer').style.display = 'none';
             document.getElementById('chase-screen').style.display = 'none';
             document.getElementById('ending-screen').style.opacity = '0';
@@ -2876,7 +3627,7 @@
             document.body.classList.remove('shake');
 
             document.getElementById('battle-screen').style.display = 'flex';
-            document.getElementById('chapter-badge').innerText = "CHƯƠNG KẾT: QUYẾT CHIẾN ANDERSON";
+            updateChapterBadge("CHƯƠNG KẾT: QUYẾT CHIẾN ANDERSON");
             document.getElementById('background').style.backgroundImage = "url('assets/images/backgrounds/boss_altar.jpg')";
             
             hideBossSpeech();
@@ -3005,7 +3756,7 @@
                 playSFX('dragon');
                 flashScreen();
                 triggerShake(600);
-                battleState.playerKi -= 40;
+                battleState.playerKi -= 50;
                 const dmg = Math.floor(Math.random() * 16) + 55;
                 battleState.bossHP -= dmg;
                 bossSprite.classList.add('boss-hit');
@@ -3013,8 +3764,8 @@
                 logBattle(`BÍ THUẬT LONG HỐNG. Kình lực rồng xanh xuyên thủng lồng ngực Anderson, gây ${dmg} sát thương cực mạnh.`, "heal");
             } else if (skillType === 'heal') {
                 playSFX('heal');
-                battleState.playerKi -= 25;
-                const healAmt = 55;
+                battleState.playerKi -= 30;
+                const healAmt = 45;
                 battleState.playerHP = Math.min(battleState.playerMaxHP, battleState.playerHP + healAmt);
                 showDamageNumber(document.getElementById('player-status-box'), `+${healAmt} HP`, '#55ff77');
                 logBattle(`Vận Khí Công Hồi Xuân, kinh mạch lưu thông phục hồi ${healAmt} HP.`, "heal");
@@ -3216,6 +3967,12 @@
         }
 
         function handleVictoryEnding() {
+            recordChapterCompleted('ch1');
+            recordChapterCompleted('ch2');
+            recordChapterCompleted('chase');
+            recordChapterCompleted('ch3');
+            recordChapterCompleted('boss');
+            recordChapterCompleted('victory');
             document.getElementById('ui-layer').style.display = 'none';
             const charImg = document.getElementById('character');
             charImg.src = '';
@@ -3281,14 +4038,16 @@
             }
         }
 
-        function adminJumpChapter(chapterKey) {
-            toggleAdminConsole(false);
+        function jumpToChapter(chapterKey) {
             initSFX();
 
             if (chaseRunning) {
                 chaseRunning = false;
                 if (chaseAnimId) cancelAnimationFrame(chaseAnimId);
             }
+            hideBossSpeech();
+            clearTimeout(bossSpeechTimeout);
+            clearTimeout(typeTimeout);
 
             document.getElementById('ending-screen').style.opacity = '0';
             document.getElementById('ending-screen').style.pointerEvents = 'none';
@@ -3303,31 +4062,46 @@
             if (chapterKey === 'ch1_start') {
                 document.getElementById('ui-layer').style.display = 'block';
                 renderNode(0);
+                showGameToast("⚔ Chuyển đến: Chương 1 - Khởi Đầu");
             } else if (chapterKey === 'ch1_maroa') {
                 document.getElementById('ui-layer').style.display = 'block';
                 renderNode('maroa_rescue');
+                showGameToast("⚔ Chuyển đến: Chương 1 - Thoát Nạn & Maroa");
             } else if (chapterKey === 'ch2_house') {
                 document.getElementById('ui-layer').style.display = 'block';
                 renderNode(7);
+                showGameToast("⚔ Chuyển đến: Chương 2 - Nhà Của Maroa");
             } else if (chapterKey === 'ch2_angry') {
                 document.getElementById('ui-layer').style.display = 'block';
                 renderNode(11);
+                showGameToast("⚔ Chuyển đến: Chương 2 - Chân Tướng Đồ Tể");
             } else if (chapterKey === 'chase') {
                 startPlatformerChase();
+                showGameToast("⚔ Bắt đầu: Màn Rượt Đuổi Trốn Chạy Maroa");
             } else if (chapterKey === 'ch3_dojo') {
                 document.getElementById('ui-layer').style.display = 'block';
                 renderNode(12);
+                showGameToast("⚔ Chuyển đến: Chương 3 - Đạo Của Ninja");
             } else if (chapterKey === 'ch3_skills') {
                 document.getElementById('ui-layer').style.display = 'block';
                 renderNode(16);
+                showGameToast("⚔ Chuyển đến: Chương 3 - Nhận Hắc Long Kiếm");
             } else if (chapterKey === 'boss_dialogue') {
                 document.getElementById('ui-layer').style.display = 'block';
                 renderNode(17);
+                showGameToast("⚔ Chuyển đến: Chương Kết - Đối Thoại Tế Đàn");
             } else if (chapterKey === 'boss_battle') {
                 startBossBattle();
+                showGameToast("⚔ Bắt đầu: Trận Đánh Boss Anderson");
             } else if (chapterKey === 'victory') {
                 handleBossVictory();
+                showGameToast("⚔ Chuyển đến: Hậu Chiến - Chiến Thắng Huy Hoàng");
             }
+        }
+
+        function adminJumpChapter(chapterKey) {
+            toggleAdminConsole(false);
+            jumpToChapter(chapterKey);
         }
 
         function adminCheat(type) {
@@ -3356,11 +4130,22 @@
                 } else {
                     adminJumpChapter('ch3_dojo');
                 }
+            } else if (type === 'unlock_chapters') {
+                localStorage.setItem('webg_unlock_all', 'true');
+                setHasPlayedThrough(true);
+                updateChapterBadge();
+                playSFX('heal');
+                showGameToast("ADMIN CHEAT: Đã mở khóa toàn bộ chọn chương!");
             }
         }
 
         window.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
+                const chapterModal = document.getElementById('chapter-select-modal');
+                if (chapterModal && chapterModal.classList.contains('active')) {
+                    closeChapterSelectModal();
+                    return;
+                }
                 const modal = document.getElementById('admin-console');
                 if (modal && modal.classList.contains('active')) {
                     toggleAdminConsole(false);
