@@ -262,7 +262,7 @@ async function executePlayerTurn(skillType) {
         battleState.bossHP -= dmg;
         battleState.bleedTurns = 2;
         bossSprite.classList.add('boss-hit');
-        showDamageNumber(bossSprite, `-${dmg} ĐỘC`, '#ff8800');
+        showDamageNumber(bossSprite, `-${dmg} BLEED`, '#ff8800');
         logBattle(`Phi Đao Hắc Ám cắm phập vào ngực Anderson. Gây ${dmg} sát thương và làm xuất huyết.`, "damage");
     } else if (skillType === 'dodge') {
         playSFX('dodge');
@@ -314,7 +314,7 @@ async function executeBossTurn() {
     if (battleState.bleedTurns > 0) {
         const bleedDmg = 15;
         battleState.bossHP -= bleedDmg;
-        logBattle(`Vết thương độc làm Anderson mất thêm ${bleedDmg} máu.`, "damage");
+        logBattle(`Vết thương xuất huyết làm Anderson mất thêm ${bleedDmg} máu.`, "damage");
         battleState.bleedTurns--;
         updateBattleHUD();
 
