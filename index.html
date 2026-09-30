@@ -162,8 +162,13 @@
             justify-content: space-between;
             align-items: center;
             padding: 12px 20px;
-            z-index: 15;
+            z-index: 100;
             background: linear-gradient(to bottom, rgba(0,0,0,0.85), transparent);
+            pointer-events: none;
+        }
+
+        #top-bar > * {
+            pointer-events: auto;
         }
 
         #chapter-badge {
@@ -3502,6 +3507,8 @@
         };
 
         let bossSpeechTimeout = null;
+        let bossTurnTimeout = null;
+        let bossVictoryTimeout = null;
         function showBossSpeech(speaker, tag, text, duration = 5200) {
             return new Promise(resolve => {
                 clearTimeout(bossSpeechTimeout);
@@ -3778,7 +3785,7 @@
             }, 400);
 
             if (battleState.bossHP <= 0) {
-                setTimeout(handleBossVictory, 800);
+                bossVictoryTimeout = setTimeout(handleBossVictory, 800);
                 return;
             }
 
@@ -3786,10 +3793,11 @@
                 await triggerBossEnragedSequence();
             }
 
-            setTimeout(executeBossTurn, 1000);
+            bossTurnTimeout = setTimeout(executeBossTurn, 1000);
         }
 
         async function executeBossTurn() {
+            if (currentChapter.type !== 'boss') return;
             battleState.turnInProgress = true;
             updateBattleHUD();
 
@@ -4047,6 +4055,10 @@
             }
             hideBossSpeech();
             clearTimeout(bossSpeechTimeout);
+            clearTimeout(bossTurnTimeout);
+            clearTimeout(bossVictoryTimeout);
+            bossTurnTimeout = null;
+            bossVictoryTimeout = null;
             clearTimeout(typeTimeout);
 
             document.getElementById('ending-screen').style.opacity = '0';
