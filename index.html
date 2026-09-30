@@ -420,26 +420,31 @@
             left: 0;
             width: 100%;
             height: 100%;
+            height: 100dvh;
             z-index: 25;
             display: none;
             flex-direction: column;
             justify-content: space-between;
             align-items: center;
             background: transparent;
+            overflow-y: auto !important;
+            overflow-x: hidden !important;
+            -webkit-overflow-scrolling: touch;
         }
 
         #boss-hud {
             width: 100%;
             max-width: 800px;
-            padding: 55px 20px 10px;
+            padding: 48px 16px 8px;
             z-index: 30;
+            flex-shrink: 0;
         }
 
         .boss-card {
             background: rgba(10, 0, 0, 0.88);
             border: 2px solid #8a0303;
             border-radius: 8px;
-            padding: 12px 18px;
+            padding: 10px 16px;
             box-shadow: 0 0 20px rgba(138, 3, 3, 0.7);
         }
 
@@ -451,7 +456,7 @@
         }
 
         .boss-name {
-            font-size: 1.4rem;
+            font-size: 1.3rem;
             font-weight: bold;
             color: #ff3333;
             letter-spacing: 1px;
@@ -495,16 +500,18 @@
         }
 
         #battle-arena {
-            flex: 1;
+            flex: 1 1 0px;
+            min-height: 0;
             width: 100%;
             position: relative;
             display: flex;
             justify-content: center;
             align-items: center;
+            overflow: visible;
         }
 
         #battle-boss-sprite {
-            max-height: 60vh;
+            max-height: clamp(140px, 36vh, 460px);
             max-width: 85vw;
             object-fit: contain;
             filter: drop-shadow(0 0 35px rgba(255, 0, 0, 0.8));
@@ -602,8 +609,9 @@
         #battle-ui-panel {
             width: 100%;
             max-width: 860px;
-            padding: 10px 16px 20px;
+            padding: 8px 16px 16px;
             z-index: 30;
+            flex-shrink: 0;
         }
 
         #player-status-box {
@@ -712,156 +720,6 @@
             color: #43cea2;
             font-weight: bold;
         }
-
-        /* Phase 2 Player Moves UI Styling */
-        .phase2-moves-banner {
-            display: none;
-            background: linear-gradient(90deg, rgba(80, 0, 20, 0.92), rgba(160, 20, 40, 0.92), rgba(80, 0, 20, 0.92));
-            border-left: 1px solid #ff3344;
-            border-right: 1px solid #ff3344;
-            border-top: 1px solid #ff3344;
-            padding: 6px 12px;
-            text-align: center;
-            font-size: 0.85rem;
-            font-weight: bold;
-            color: #fff;
-            letter-spacing: 1.5px;
-            text-shadow: 0 0 8px rgba(255, 50, 50, 0.8), 0 0 16px rgba(255, 0, 0, 0.6);
-            animation: phase2BannerGlow 1.8s infinite alternate ease-in-out;
-        }
-
-        .phase2-moves-banner.active {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        @keyframes phase2BannerGlow {
-            0% {
-                background: linear-gradient(90deg, rgba(70, 0, 15, 0.95), rgba(150, 10, 30, 0.95), rgba(70, 0, 15, 0.95));
-                box-shadow: inset 0 0 10px rgba(255, 0, 0, 0.3);
-            }
-            100% {
-                background: linear-gradient(90deg, rgba(110, 5, 25, 0.95), rgba(200, 30, 50, 0.95), rgba(110, 5, 25, 0.95));
-                box-shadow: inset 0 0 18px rgba(255, 80, 80, 0.5), 0 0 15px rgba(255, 0, 0, 0.4);
-            }
-        }
-
-        #skills-grid.phase2-active {
-            border-color: #ff3344;
-            background: linear-gradient(180deg, rgba(28, 8, 16, 0.96) 0%, rgba(12, 10, 18, 0.98) 100%);
-            box-shadow: 0 0 25px rgba(255, 30, 50, 0.4), inset 0 0 18px rgba(255, 0, 0, 0.2);
-            animation: phase2GridAura 2s infinite alternate ease-in-out;
-        }
-
-        @keyframes phase2GridAura {
-            0% {
-                box-shadow: 0 0 20px rgba(255, 30, 50, 0.35), inset 0 0 15px rgba(255, 0, 0, 0.15);
-                border-color: #ff3344;
-            }
-            100% {
-                box-shadow: 0 0 35px rgba(255, 50, 80, 0.55), inset 0 0 25px rgba(255, 30, 30, 0.25);
-                border-color: #ff5566;
-            }
-        }
-
-        .skill-btn.phase2-btn {
-            position: relative;
-            overflow: hidden;
-            transition: all 0.25s ease;
-        }
-
-        .skill-btn.phase2-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 2px;
-            opacity: 0.8;
-        }
-
-        .skill-btn.phase2-btn .skill-name {
-            font-size: 0.95rem;
-            font-weight: bold;
-            letter-spacing: 0.3px;
-        }
-
-        .skill-btn.phase2-btn.slash-phase2 {
-            border-color: rgba(0, 210, 255, 0.5);
-            background: rgba(14, 28, 42, 0.92);
-        }
-        .skill-btn.phase2-btn.slash-phase2::before {
-            background: linear-gradient(90deg, transparent, #00d2ff, transparent);
-        }
-        .skill-btn.phase2-btn.slash-phase2:hover:not(:disabled) {
-            border-color: #00d2ff;
-            background: rgba(0, 160, 255, 0.35);
-            box-shadow: 0 0 16px rgba(0, 210, 255, 0.6);
-            transform: translateY(-2px);
-        }
-        .skill-btn.phase2-btn.slash-phase2 .skill-name { text-shadow: 0 0 8px #00d2ff; }
-
-        .skill-btn.phase2-btn.kunai-phase2 {
-            border-color: rgba(199, 125, 255, 0.5);
-            background: rgba(36, 16, 44, 0.92);
-        }
-        .skill-btn.phase2-btn.kunai-phase2::before {
-            background: linear-gradient(90deg, transparent, #c77dff, transparent);
-        }
-        .skill-btn.phase2-btn.kunai-phase2:hover:not(:disabled) {
-            border-color: #c77dff;
-            background: rgba(199, 125, 255, 0.35);
-            box-shadow: 0 0 16px rgba(199, 125, 255, 0.6);
-            transform: translateY(-2px);
-        }
-        .skill-btn.phase2-btn.kunai-phase2 .skill-name { text-shadow: 0 0 8px #c77dff; }
-
-        .skill-btn.phase2-btn.dodge-phase2 {
-            border-color: rgba(0, 229, 255, 0.5);
-            background: rgba(14, 34, 38, 0.92);
-        }
-        .skill-btn.phase2-btn.dodge-phase2::before {
-            background: linear-gradient(90deg, transparent, #00e5ff, transparent);
-        }
-        .skill-btn.phase2-btn.dodge-phase2:hover:not(:disabled) {
-            border-color: #00e5ff;
-            background: rgba(0, 229, 255, 0.35);
-            box-shadow: 0 0 16px rgba(0, 229, 255, 0.6);
-            transform: translateY(-2px);
-        }
-        .skill-btn.phase2-btn.dodge-phase2 .skill-name { text-shadow: 0 0 8px #00e5ff; }
-
-        .skill-btn.phase2-btn.dragon-phase2 {
-            border-color: rgba(255, 200, 0, 0.55);
-            background: rgba(45, 22, 10, 0.92);
-        }
-        .skill-btn.phase2-btn.dragon-phase2::before {
-            background: linear-gradient(90deg, transparent, #ffd700, transparent);
-        }
-        .skill-btn.phase2-btn.dragon-phase2:hover:not(:disabled) {
-            border-color: #ffd700;
-            background: rgba(255, 180, 0, 0.4);
-            box-shadow: 0 0 20px rgba(255, 215, 0, 0.7);
-            transform: translateY(-2px);
-        }
-        .skill-btn.phase2-btn.dragon-phase2 .skill-name { text-shadow: 0 0 10px #ffd700; color: #fff8e1; }
-
-        .skill-btn.phase2-btn.heal-phase2 {
-            border-color: rgba(0, 230, 118, 0.55);
-            background: rgba(14, 38, 24, 0.92);
-        }
-        .skill-btn.phase2-btn.heal-phase2::before {
-            background: linear-gradient(90deg, transparent, #00e676, transparent);
-        }
-        .skill-btn.phase2-btn.heal-phase2:hover:not(:disabled) {
-            border-color: #00e676;
-            background: rgba(0, 230, 118, 0.35);
-            box-shadow: 0 0 16px rgba(0, 230, 118, 0.6);
-            transform: translateY(-2px);
-        }
-        .skill-btn.phase2-btn.heal-phase2 .skill-name { text-shadow: 0 0 8px #00e676; }
 
         /* Floating Damage Text */
         .damage-number {
@@ -993,8 +851,152 @@
             #ending-description {
                 font-size: 1.05rem;
             }
+
+            /* Optimized Mobile Boss Fight UI */
+            #battle-screen {
+                justify-content: space-between;
+                padding-bottom: max(6px, env(safe-area-inset-bottom, 6px));
+            }
+            #boss-hud {
+                padding: 38px 8px 2px;
+                max-width: 100%;
+            }
+            .boss-card {
+                padding: 5px 10px;
+                border-width: 1px;
+                box-shadow: 0 0 12px rgba(138, 3, 3, 0.5);
+            }
+            .boss-name {
+                font-size: 0.92rem;
+                letter-spacing: 0.5px;
+            }
+            .boss-status {
+                font-size: 0.7rem;
+                padding: 1px 6px;
+            }
+            .boss-card .hp-bar-outer {
+                height: 13px;
+            }
+            .boss-card .bar-label {
+                font-size: 0.66rem;
+            }
+
+            #battle-arena {
+                flex: 1 1 auto;
+                min-height: 70px;
+                max-height: 22vh;
+            }
+            #battle-boss-sprite {
+                max-height: 20vh;
+                max-width: 70vw;
+            }
+            .boss-speech-bubble {
+                top: 4px;
+                padding: 6px 10px;
+                max-width: 94%;
+            }
+            .boss-speech-name {
+                font-size: 0.85rem;
+            }
+            .boss-speech-text {
+                font-size: 0.82rem;
+                line-height: 1.3;
+                min-height: 1.6rem;
+            }
+
+            #battle-ui-panel {
+                padding: 2px 6px 6px;
+                max-width: 100%;
+            }
+            #player-status-box {
+                padding: 4px 8px;
+                gap: 8px;
+            }
+            .stat-label {
+                font-size: 0.7rem;
+            }
+            #player-status-box .hp-bar-outer {
+                height: 9px !important;
+            }
+
+            #battle-log {
+                height: 38px;
+                min-height: 38px;
+                font-size: 0.72rem;
+                line-height: 1.25;
+                padding: 3px 6px;
+            }
+
             #skills-grid {
                 grid-template-columns: 1fr 1fr;
+                gap: 5px;
+                padding: 5px;
+            }
+            .skill-btn {
+                padding: 6px 8px;
+                min-height: 42px;
+                gap: 2px;
+                border-radius: 5px;
+            }
+            .skill-name {
+                font-size: 0.8rem;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            .skill-desc {
+                font-size: 0.65rem;
+                line-height: 1.15;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            .skill-cost {
+                font-size: 0.67rem;
+                white-space: nowrap;
+            }
+
+            #skill-heal-btn {
+                grid-column: span 2;
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+                padding: 6px 12px;
+            }
+            #skill-heal-btn .skill-desc {
+                display: none;
+            }
+        }
+
+        @media (max-height: 600px) {
+            #boss-hud {
+                padding: 28px 8px 2px;
+            }
+            #battle-arena {
+                max-height: 18vh;
+            }
+            #battle-boss-sprite {
+                max-height: 16vh;
+            }
+            #battle-log {
+                height: 30px;
+                min-height: 30px;
+            }
+            #skills-grid {
+                grid-template-columns: repeat(5, 1fr) !important;
+                gap: 4px;
+                padding: 4px;
+            }
+            #skill-heal-btn {
+                grid-column: auto !important;
+                flex-direction: column !important;
+            }
+            .skill-btn {
+                padding: 4px 6px;
+                min-height: 34px;
+            }
+            .skill-desc {
+                display: none;
             }
         }
 
@@ -1259,12 +1261,6 @@
 
                 <div id="battle-log">
                     <div class="log-entry">Trận quyết đấu bắt đầu. Hãy vận dụng các bí thuật của Ninja Đạo.</div>
-                </div>
-
-                <div id="phase2-moves-banner" class="phase2-moves-banner">
-                    <span>⚡</span>
-                    <span>HẮC LONG THỨC TỈNH • CHIẾN KỸ GIAI ĐOẠN 2</span>
-                    <span>⚡</span>
                 </div>
 
                 <div id="skills-grid">
@@ -2802,76 +2798,9 @@
             if (bubble) bubble.classList.remove('active');
         }
 
-        function setPlayerMovesPhase(isPhase2) {
-            const skillsGrid = document.getElementById('skills-grid');
-            const banner = document.getElementById('phase2-moves-banner');
-            if (!skillsGrid) return;
-
-            const moves = {
-                slash: {
-                    btn: document.getElementById('skill-slash-btn'),
-                    p1: { name: "Trảm Kích", desc: "Chém cơ bản. Hồi +25 Ki.", cost: "+25 Ki | 18-24 ST", cls: "slash-phase2" },
-                    p2: { name: "⚡ Hắc Long Trảm", desc: "Kiếm khí cuồng nộ rạch phá hư không. Hồi +25 Ki.", cost: "+25 Ki | 18-24 ST", cls: "slash-phase2" }
-                },
-                kunai: {
-                    btn: document.getElementById('skill-kunai-btn'),
-                    p1: { name: "Phi Đao Hắc Ám", desc: "Gây xuất huyết 2 lượt.", cost: "20 Ki | 25 ST + Độc", cls: "kunai-phase2" },
-                    p2: { name: "🗡️ U Hồn Ám Khí", desc: "Ám khí tẩm huyết độc xuyên tâm xé rách ma thể.", cost: "20 Ki | 25 ST + Huyết Độc", cls: "kunai-phase2" }
-                },
-                dodge: {
-                    btn: document.getElementById('skill-dodge-btn'),
-                    p1: { name: "Thân Pháp Ninja", desc: "Giảm 60% sát thương và phản đòn.", cost: "20 Ki | Phản Đòn", cls: "dodge-phase2" },
-                    p2: { name: "💨 Huyễn Ảnh Vô Cực", desc: "Phân thân hư không né 60% ST & phản kích sấm sét.", cost: "20 Ki | Phản Kích Cực Hạn", cls: "dodge-phase2" }
-                },
-                dragon: {
-                    btn: document.getElementById('skill-dragon-btn'),
-                    p1: { name: "Long Hống Kích", desc: "Sát chiêu phá giáp cực mạnh.", cost: "40 Ki | 55-70 ST", cls: "dragon-phase2" },
-                    p2: { name: "🐉 Chân Long Diệt Quỷ", desc: "Long hồn thức tỉnh nghiền nát ma khí bạo tàn!", cost: "40 Ki | 55-70 ST", cls: "dragon-phase2" }
-                },
-                heal: {
-                    btn: document.getElementById('skill-heal-btn'),
-                    p1: { name: "Khí Công Hồi Xuân", desc: "Hồi phục sinh lực tức thì.", cost: "25 Ki | +55 HP", cls: "heal-phase2" },
-                    p2: { name: "🌿 Niết Bàn Tái Sinh", desc: "Chân khí rồng thiêng hồi phục sinh mệnh cấp tốc.", cost: "25 Ki | +55 HP", cls: "heal-phase2" }
-                }
-            };
-
-            if (isPhase2) {
-                skillsGrid.classList.add('phase2-active');
-                if (banner) banner.classList.add('active');
-
-                Object.values(moves).forEach(m => {
-                    if (m.btn) {
-                        m.btn.classList.add('phase2-btn', m.p2.cls);
-                        const nameEl = m.btn.querySelector('.skill-name');
-                        const descEl = m.btn.querySelector('.skill-desc');
-                        const costEl = m.btn.querySelector('.skill-cost');
-                        if (nameEl) nameEl.innerHTML = m.p2.name;
-                        if (descEl) descEl.innerText = m.p2.desc;
-                        if (costEl) costEl.innerText = m.p2.cost;
-                    }
-                });
-            } else {
-                skillsGrid.classList.remove('phase2-active');
-                if (banner) banner.classList.remove('active');
-
-                Object.values(moves).forEach(m => {
-                    if (m.btn) {
-                        m.btn.classList.remove('phase2-btn', m.p1.cls);
-                        const nameEl = m.btn.querySelector('.skill-name');
-                        const descEl = m.btn.querySelector('.skill-desc');
-                        const costEl = m.btn.querySelector('.skill-cost');
-                        if (nameEl) nameEl.innerHTML = m.p1.name;
-                        if (descEl) descEl.innerText = m.p1.desc;
-                        if (costEl) costEl.innerText = m.p1.cost;
-                    }
-                });
-            }
-        }
-
         async function triggerBossEnragedSequence() {
             battleState.isBossEnraged = true;
             battleState.turnInProgress = true;
-            setPlayerMovesPhase(true);
             updateBattleHUD();
 
             flashScreen();
@@ -2987,7 +2916,6 @@
                 hasUsedUltimate: false
             };
 
-            setPlayerMovesPhase(false);
             updateBattleHUD();
             logBattle("Anderson gầm lên man dại: 'Tế đàn này sẽ chôn vùi ngươi cùng thanh kiếm gỉ đó!'", "damage");
         }
@@ -3013,10 +2941,6 @@
             const playerKiPercent = Math.max(0, (battleState.playerKi / battleState.playerMaxKi) * 100);
             document.getElementById('player-ki-fill').style.width = playerKiPercent + '%';
             document.getElementById('player-ki-text').innerText = `${battleState.playerKi} / ${battleState.playerMaxKi}`;
-
-            if (battleState.isBossEnraged) {
-                setPlayerMovesPhase(true);
-            }
 
             const canAct = !battleState.turnInProgress && battleState.playerHP > 0 && battleState.bossHP > 0;
             const skillsGrid = document.getElementById('skills-grid');
