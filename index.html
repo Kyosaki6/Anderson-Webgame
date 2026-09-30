@@ -2,15 +2,27 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Khu Rừng Đen Tối</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Khu Rừng Đen Tối: Cơn Ác Mộng Của Maroa và Anderson</title>
     <style>
         :root {
             --primary-color: #ffffff;
-            --bg-color: #000000;
-            --box-bg: rgba(0, 0, 0, 0.85);
+            --accent-red: #ff2222;
+            --dark-red: #8a0303;
+            --bg-color: #050505;
+            --box-bg: rgba(10, 10, 15, 0.92);
             --border-color: #8a0303;
-            --hover-bg: rgba(138, 3, 3, 0.3);
+            --hover-bg: rgba(160, 10, 10, 0.4);
+            --ninja-blue: #00d2ff;
+            --ninja-glow: rgba(0, 210, 255, 0.6);
+            --ki-color: #38ef7d;
+        }
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
         }
 
         body, html {
@@ -32,6 +44,8 @@
             flex-direction: column;
             justify-content: flex-end;
             align-items: center;
+            overflow: hidden;
+            background: #000;
         }
 
         #background {
@@ -40,11 +54,23 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-image: url('darkforest_bg.jpg');
+            background-image: url('assets/images/backgrounds/darkforest_bg.jpg');
             background-size: cover;
             background-position: center;
             z-index: 1;
-            transition: background-image 2s ease-in-out;
+            transition: none;
+            filter: brightness(0.85) contrast(1.1);
+        }
+
+        #vignette-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.9), inset 0 0 180px rgba(0, 0, 0, 0.8);
+            z-index: 2;
+            pointer-events: none;
         }
 
         #blood-overlay {
@@ -53,14 +79,27 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-image: url('blood_overlay.webp');
+            background-image: url('assets/images/overlays/blood_overlay.webp');
             background-size: cover;
             background-position: center;
             opacity: 0;
-            z-index: 3;
+            z-index: 4;
             pointer-events: none;
-            transition: opacity 3s ease-in;
+            transition: none;
             mix-blend-mode: multiply;
+        }
+
+        #flash-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            opacity: 0;
+            z-index: 50;
+            pointer-events: none;
+            transition: opacity 0.1s ease-out;
         }
 
         #character {
@@ -68,132 +107,1046 @@
             bottom: 0;
             left: 50%;
             transform: translateX(-50%);
-            height: 90vh;
+            height: 85vh;
             max-width: 90vw;
-            z-index: 2;
+            z-index: 3;
             object-fit: contain;
-            filter: drop-shadow(0 0 20px rgba(0,0,0,0.8)) contrast(1.2) brightness(0.8);
-            transition: opacity 2s ease, transform 0.5s ease;
+            filter: drop-shadow(0 0 25px rgba(0,0,0,0.9)) contrast(1.15) brightness(0.85);
+            transition: none;
+            pointer-events: none;
         }
 
+        #character.hidden {
+            opacity: 0;
+            transform: translateX(-50%) scale(0.9);
+            pointer-events: none;
+        }
+
+        #character.angry-glow {
+            filter: drop-shadow(0 0 35px rgba(255, 0, 0, 0.9)) contrast(1.3) brightness(1.1);
+        }
+
+        #character.ninja-glow {
+            filter: drop-shadow(0 0 35px rgba(0, 210, 255, 0.8)) contrast(1.2) brightness(1.0);
+        }
+
+        #character.fading-glow {
+            animation: fadePityDissolve 4s forwards ease-in-out;
+        }
+
+        @keyframes fadePityDissolve {
+            0% {
+                opacity: 1;
+                filter: drop-shadow(0 0 35px rgba(255, 0, 0, 0.9)) contrast(1.3);
+                transform: translateX(-50%) scale(1);
+            }
+            40% {
+                opacity: 0.7;
+                filter: drop-shadow(0 0 35px rgba(180, 180, 255, 0.7)) grayscale(0.5) contrast(1.0);
+                transform: translateX(-50%) scale(0.97) translateY(8px);
+            }
+            100% {
+                opacity: 0.3;
+                filter: drop-shadow(0 0 45px rgba(150, 150, 255, 0.5)) grayscale(0.9) blur(1px);
+                transform: translateX(-50%) scale(0.93) translateY(18px);
+            }
+        }
+
+        /* Top Bar */
+        #top-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 20px;
+            z-index: 15;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.85), transparent);
+        }
+
+        #chapter-badge {
+            font-size: 1.1rem;
+            color: #ff5555;
+            font-weight: bold;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(255, 0, 0, 0.7);
+            border-left: 3px solid var(--accent-red);
+            padding-left: 10px;
+        }
+
+        #audio-btn {
+            background: rgba(0, 0, 0, 0.7);
+            border: 1px solid #777;
+            color: #eee;
+            padding: 6px 16px;
+            font-size: 0.9rem;
+            border-radius: 20px;
+            cursor: pointer;
+            letter-spacing: 1px;
+            transition: all 0.2s ease;
+        }
+
+        #audio-btn:hover {
+            border-color: #ff3333;
+            color: #fff;
+        }
+
+        /* Dialogue UI */
         #ui-layer {
             position: relative;
             z-index: 10;
             width: 100%;
-            max-width: 800px;
-            padding: 20px;
+            max-width: 860px;
+            padding: 16px;
             box-sizing: border-box;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
+            transition: none;
         }
 
         #dialogue-box {
-            background-color: var(--box-bg);
+            background: var(--box-bg);
             border: 2px solid var(--border-color);
-            border-radius: 5px;
-            padding: 20px;
-            box-shadow: 0 0 15px rgba(138, 3, 3, 0.5);
-            min-height: 120px;
+            border-radius: 8px;
+            padding: 18px 24px;
+            box-shadow: 0 0 25px rgba(138, 3, 3, 0.6), inset 0 0 15px rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(4px);
+            min-height: 130px;
+            position: relative;
+        }
+
+        #speaker-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+
+        #speaker-tag {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            padding: 2px 8px;
+            border-radius: 4px;
+            background: rgba(138, 3, 3, 0.4);
+            border: 1px solid #aa1111;
+            letter-spacing: 1px;
+            color: #ffaaaa;
         }
 
         #speaker-name {
-            font-size: 1.5rem;
-            color: #ff3333;
+            font-size: 1.4rem;
+            color: #ff4444;
             font-weight: bold;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px #000;
+            text-shadow: 2px 2px 5px #000, 0 0 8px rgba(255, 0, 0, 0.6);
+            letter-spacing: 1px;
+        }
+
+        #speaker-name.ninja-name {
+            color: var(--ninja-blue);
+            text-shadow: 2px 2px 5px #000, 0 0 10px var(--ninja-glow);
         }
 
         #dialogue-text {
-            font-size: 1.2rem;
-            line-height: 1.5;
-            text-shadow: 1px 1px 2px #000;
-            min-height: 60px;
+            font-size: 1.15rem;
+            line-height: 1.6;
+            text-shadow: 1px 1px 3px #000;
+            min-height: 65px;
+            color: #e5e5e5;
         }
 
         #choices-container {
-            margin-top: 20px;
+            margin-top: 15px;
             display: flex;
             flex-direction: column;
             gap: 10px;
         }
 
         .choice-btn {
-            background-color: var(--box-bg);
+            background: rgba(15, 15, 20, 0.9);
             border: 1px solid var(--border-color);
-            color: var(--primary-color);
-            padding: 15px;
-            font-family: 'Times New Roman', Times, serif;
-            font-size: 1.1rem;
+            color: #fff;
+            padding: 14px 20px;
+            font-family: inherit;
+            font-size: 1.05rem;
             cursor: pointer;
             text-align: left;
-            transition: background-color 0.3s, transform 0.1s;
-            border-radius: 3px;
+            transition: all 0.25s ease;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
         }
 
-        .choice-btn:hover {
+        .choice-btn:hover, .choice-btn:active {
             background-color: var(--hover-bg);
-            transform: translateX(5px);
+            border-color: #ff3333;
+            transform: translateX(6px);
+            box-shadow: 0 0 15px rgba(255, 0, 0, 0.4);
         }
 
+        .choice-btn.primary-action {
+            border-color: #ff4444;
+            background: rgba(138, 3, 3, 0.4);
+            font-weight: bold;
+        }
+
+        .choice-btn.ninja-action {
+            border-color: var(--ninja-blue);
+            background: rgba(0, 100, 160, 0.4);
+        }
+        .choice-btn.ninja-action:hover {
+            border-color: #fff;
+            box-shadow: 0 0 15px var(--ninja-glow);
+        }
+
+        /* ==============================================================
+           2D PLATFORMER CHASE MINI-GAME STYLES
+           ============================================================== */
+        #chase-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 25;
+            display: none;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            background: #000;
+        }
+
+        #chase-hud {
+            width: 100%;
+            max-width: 860px;
+            padding: 55px 20px 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 30;
+        }
+
+        .hud-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(10, 10, 15, 0.85);
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 1px solid #555;
+        }
+
+        .progress-bar-bg {
+            flex: 1;
+            height: 16px;
+            background: #202025;
+            border-radius: 8px;
+            margin: 0 15px;
+            overflow: hidden;
+            border: 1px solid #666;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+
+        #distance-fill {
+            background: linear-gradient(90deg, #ff8800, #38ef7d);
+        }
+
+        #danger-fill {
+            background: linear-gradient(90deg, #ffbb00, #ff0000);
+        }
+
+        #chase-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 26;
+        }
+
+        #chase-controls-mobile {
+            position: relative;
+            z-index: 35;
+            width: 100%;
+            max-width: 650px;
+            padding: 10px 16px 25px;
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .chase-btn {
+            flex: 1;
+            padding: 18px 4px;
+            background: rgba(20, 20, 30, 0.88);
+            border: 2px solid #666;
+            color: #fff;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.8);
+            letter-spacing: 1px;
+            transition: all 0.1s ease;
+        }
+
+        .chase-btn:active {
+            background: rgba(200, 0, 0, 0.6);
+            border-color: #ff4444;
+            transform: scale(0.95);
+        }
+
+        #chase-jump-btn {
+            border-color: #ffaa00;
+            color: #ffea70;
+            background: rgba(60, 40, 10, 0.88);
+        }
+
+        /* ==============================================================
+           BOSS BATTLE STYLES
+           ============================================================== */
+        #battle-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 25;
+            display: none;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            background: transparent;
+        }
+
+        #boss-hud {
+            width: 100%;
+            max-width: 800px;
+            padding: 55px 20px 10px;
+            z-index: 30;
+        }
+
+        .boss-card {
+            background: rgba(10, 0, 0, 0.88);
+            border: 2px solid #8a0303;
+            border-radius: 8px;
+            padding: 12px 18px;
+            box-shadow: 0 0 20px rgba(138, 3, 3, 0.7);
+        }
+
+        .boss-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        .boss-name {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #ff3333;
+            letter-spacing: 1px;
+            text-shadow: 0 0 8px rgba(255, 0, 0, 0.8);
+        }
+
+        .boss-status {
+            font-size: 0.85rem;
+            color: #ffaaaa;
+            background: rgba(255, 0, 0, 0.2);
+            padding: 3px 8px;
+            border-radius: 4px;
+            border: 1px solid #aa2222;
+        }
+
+        .hp-bar-outer {
+            height: 20px;
+            background: #200;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid #771111;
+            position: relative;
+        }
+
+        .hp-bar-inner {
+            height: 100%;
+            background: linear-gradient(90deg, #990000, #ff2222);
+            width: 100%;
+            transition: width 0.4s ease-out;
+        }
+
+        .bar-label {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 0.75rem;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 1px 1px 2px #000;
+        }
+
+        #battle-arena {
+            flex: 1;
+            width: 100%;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #battle-boss-sprite {
+            max-height: 60vh;
+            max-width: 85vw;
+            object-fit: contain;
+            filter: drop-shadow(0 0 35px rgba(255, 0, 0, 0.8));
+            transition: transform 0.2s ease, filter 0.3s ease;
+        }
+
+        #battle-boss-sprite.enraged {
+            filter: drop-shadow(0 0 60px #ff0000) contrast(1.4) brightness(1.1);
+            animation: bossPulseEnraged 1.5s infinite alternate ease-in-out;
+        }
+
+        @keyframes bossPulseEnraged {
+            0% { transform: scale(1); filter: drop-shadow(0 0 45px #ff0000) contrast(1.4); }
+            100% { transform: scale(1.05); filter: drop-shadow(0 0 75px #ff2200) contrast(1.6); }
+        }
+
+        .boss-speech-bubble {
+            position: absolute;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-10px);
+            width: 90%;
+            max-width: 620px;
+            background: rgba(14, 5, 10, 0.95);
+            border: 2px solid #aa1111;
+            border-radius: 8px;
+            padding: 14px 20px;
+            box-shadow: 0 0 35px rgba(255, 0, 0, 0.7), inset 0 0 20px rgba(0, 0, 0, 0.9);
+            z-index: 40;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .boss-speech-bubble.active {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .boss-speech-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 6px;
+        }
+
+        .boss-speech-name {
+            font-size: 1.15rem;
+            font-weight: bold;
+            color: #ff3333;
+            letter-spacing: 1px;
+            text-shadow: 0 0 8px rgba(255, 0, 0, 0.7);
+        }
+
+        .boss-speech-tag {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            padding: 2px 6px;
+            border-radius: 4px;
+            background: rgba(255, 0, 0, 0.3);
+            border: 1px solid #ff3333;
+            color: #ffcccc;
+            letter-spacing: 1px;
+        }
+
+        .boss-speech-text {
+            color: #fff;
+            font-size: 1.02rem;
+            line-height: 1.5;
+            text-shadow: 1px 1px 3px #000;
+            min-height: 2.2rem;
+        }
+
+        #skills-grid.turn-locked {
+            pointer-events: none;
+            opacity: 0.45;
+            filter: grayscale(0.6);
+            cursor: not-allowed;
+        }
+
+        #battle-boss-sprite.boss-hit {
+            animation: bossDamage 0.4s ease;
+            filter: brightness(2) drop-shadow(0 0 50px white);
+        }
+
+        @keyframes bossDamage {
+            0% { transform: scale(1) translate(0, 0); }
+            25% { transform: scale(0.95) translate(-10px, 5px); }
+            50% { transform: scale(1.05) translate(10px, -5px); }
+            75% { transform: scale(0.98) translate(-5px, 0); }
+            100% { transform: scale(1) translate(0, 0); }
+        }
+
+        #battle-ui-panel {
+            width: 100%;
+            max-width: 860px;
+            padding: 10px 16px 20px;
+            z-index: 30;
+        }
+
+        #player-status-box {
+            display: flex;
+            gap: 15px;
+            background: rgba(10, 15, 25, 0.92);
+            border: 1px solid #335577;
+            padding: 10px 18px;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .stat-group {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        #player-hp-fill {
+            background: linear-gradient(90deg, #00b09b, #96c93d);
+        }
+
+        #player-ki-fill {
+            background: linear-gradient(90deg, #185a9d, #43cea2);
+        }
+
+        #battle-log {
+            height: 70px;
+            background: rgba(0, 0, 0, 0.88);
+            border-left: 1px solid #444;
+            border-right: 1px solid #444;
+            padding: 8px 12px;
+            font-size: 0.95rem;
+            color: #ddd;
+            overflow-y: auto;
+            line-height: 1.4;
+            font-family: monospace;
+        }
+
+        .log-entry {
+            margin-bottom: 4px;
+        }
+        .log-entry.damage { color: #ff6666; }
+        .log-entry.heal { color: #55ff77; }
+        .log-entry.dodge { color: #38c8ff; }
+        .log-entry.boss-act { color: #ffaa33; }
+
+        #skills-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 8px;
+            background: rgba(10, 10, 15, 0.95);
+            border: 1px solid #444;
+            border-radius: 0 0 8px 8px;
+            padding: 12px;
+        }
+
+        .skill-btn {
+            background: rgba(25, 25, 35, 0.9);
+            border: 1px solid #446688;
+            color: #fff;
+            padding: 12px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            font-family: inherit;
+            transition: all 0.2s ease;
+            text-align: left;
+        }
+
+        .skill-btn:hover:not(:disabled), .skill-btn:active:not(:disabled) {
+            background: rgba(0, 120, 200, 0.4);
+            border-color: var(--ninja-blue);
+            transform: translateY(-2px);
+            box-shadow: 0 0 10px var(--ninja-glow);
+        }
+
+        .skill-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            border-color: #444;
+        }
+
+        .skill-name {
+            font-size: 0.95rem;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .skill-desc {
+            font-size: 0.75rem;
+            color: #aaa;
+        }
+
+        .skill-cost {
+            font-size: 0.75rem;
+            color: #43cea2;
+            font-weight: bold;
+        }
+
+        /* Phase 2 Player Moves UI Styling */
+        .phase2-moves-banner {
+            display: none;
+            background: linear-gradient(90deg, rgba(80, 0, 20, 0.92), rgba(160, 20, 40, 0.92), rgba(80, 0, 20, 0.92));
+            border-left: 1px solid #ff3344;
+            border-right: 1px solid #ff3344;
+            border-top: 1px solid #ff3344;
+            padding: 6px 12px;
+            text-align: center;
+            font-size: 0.85rem;
+            font-weight: bold;
+            color: #fff;
+            letter-spacing: 1.5px;
+            text-shadow: 0 0 8px rgba(255, 50, 50, 0.8), 0 0 16px rgba(255, 0, 0, 0.6);
+            animation: phase2BannerGlow 1.8s infinite alternate ease-in-out;
+        }
+
+        .phase2-moves-banner.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        @keyframes phase2BannerGlow {
+            0% {
+                background: linear-gradient(90deg, rgba(70, 0, 15, 0.95), rgba(150, 10, 30, 0.95), rgba(70, 0, 15, 0.95));
+                box-shadow: inset 0 0 10px rgba(255, 0, 0, 0.3);
+            }
+            100% {
+                background: linear-gradient(90deg, rgba(110, 5, 25, 0.95), rgba(200, 30, 50, 0.95), rgba(110, 5, 25, 0.95));
+                box-shadow: inset 0 0 18px rgba(255, 80, 80, 0.5), 0 0 15px rgba(255, 0, 0, 0.4);
+            }
+        }
+
+        #skills-grid.phase2-active {
+            border-color: #ff3344;
+            background: linear-gradient(180deg, rgba(28, 8, 16, 0.96) 0%, rgba(12, 10, 18, 0.98) 100%);
+            box-shadow: 0 0 25px rgba(255, 30, 50, 0.4), inset 0 0 18px rgba(255, 0, 0, 0.2);
+            animation: phase2GridAura 2s infinite alternate ease-in-out;
+        }
+
+        @keyframes phase2GridAura {
+            0% {
+                box-shadow: 0 0 20px rgba(255, 30, 50, 0.35), inset 0 0 15px rgba(255, 0, 0, 0.15);
+                border-color: #ff3344;
+            }
+            100% {
+                box-shadow: 0 0 35px rgba(255, 50, 80, 0.55), inset 0 0 25px rgba(255, 30, 30, 0.25);
+                border-color: #ff5566;
+            }
+        }
+
+        .skill-btn.phase2-btn {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.25s ease;
+        }
+
+        .skill-btn.phase2-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            opacity: 0.8;
+        }
+
+        .skill-btn.phase2-btn .skill-name {
+            font-size: 0.95rem;
+            font-weight: bold;
+            letter-spacing: 0.3px;
+        }
+
+        .skill-btn.phase2-btn.slash-phase2 {
+            border-color: rgba(0, 210, 255, 0.5);
+            background: rgba(14, 28, 42, 0.92);
+        }
+        .skill-btn.phase2-btn.slash-phase2::before {
+            background: linear-gradient(90deg, transparent, #00d2ff, transparent);
+        }
+        .skill-btn.phase2-btn.slash-phase2:hover:not(:disabled) {
+            border-color: #00d2ff;
+            background: rgba(0, 160, 255, 0.35);
+            box-shadow: 0 0 16px rgba(0, 210, 255, 0.6);
+            transform: translateY(-2px);
+        }
+        .skill-btn.phase2-btn.slash-phase2 .skill-name { text-shadow: 0 0 8px #00d2ff; }
+
+        .skill-btn.phase2-btn.kunai-phase2 {
+            border-color: rgba(199, 125, 255, 0.5);
+            background: rgba(36, 16, 44, 0.92);
+        }
+        .skill-btn.phase2-btn.kunai-phase2::before {
+            background: linear-gradient(90deg, transparent, #c77dff, transparent);
+        }
+        .skill-btn.phase2-btn.kunai-phase2:hover:not(:disabled) {
+            border-color: #c77dff;
+            background: rgba(199, 125, 255, 0.35);
+            box-shadow: 0 0 16px rgba(199, 125, 255, 0.6);
+            transform: translateY(-2px);
+        }
+        .skill-btn.phase2-btn.kunai-phase2 .skill-name { text-shadow: 0 0 8px #c77dff; }
+
+        .skill-btn.phase2-btn.dodge-phase2 {
+            border-color: rgba(0, 229, 255, 0.5);
+            background: rgba(14, 34, 38, 0.92);
+        }
+        .skill-btn.phase2-btn.dodge-phase2::before {
+            background: linear-gradient(90deg, transparent, #00e5ff, transparent);
+        }
+        .skill-btn.phase2-btn.dodge-phase2:hover:not(:disabled) {
+            border-color: #00e5ff;
+            background: rgba(0, 229, 255, 0.35);
+            box-shadow: 0 0 16px rgba(0, 229, 255, 0.6);
+            transform: translateY(-2px);
+        }
+        .skill-btn.phase2-btn.dodge-phase2 .skill-name { text-shadow: 0 0 8px #00e5ff; }
+
+        .skill-btn.phase2-btn.dragon-phase2 {
+            border-color: rgba(255, 200, 0, 0.55);
+            background: rgba(45, 22, 10, 0.92);
+        }
+        .skill-btn.phase2-btn.dragon-phase2::before {
+            background: linear-gradient(90deg, transparent, #ffd700, transparent);
+        }
+        .skill-btn.phase2-btn.dragon-phase2:hover:not(:disabled) {
+            border-color: #ffd700;
+            background: rgba(255, 180, 0, 0.4);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.7);
+            transform: translateY(-2px);
+        }
+        .skill-btn.phase2-btn.dragon-phase2 .skill-name { text-shadow: 0 0 10px #ffd700; color: #fff8e1; }
+
+        .skill-btn.phase2-btn.heal-phase2 {
+            border-color: rgba(0, 230, 118, 0.55);
+            background: rgba(14, 38, 24, 0.92);
+        }
+        .skill-btn.phase2-btn.heal-phase2::before {
+            background: linear-gradient(90deg, transparent, #00e676, transparent);
+        }
+        .skill-btn.phase2-btn.heal-phase2:hover:not(:disabled) {
+            border-color: #00e676;
+            background: rgba(0, 230, 118, 0.35);
+            box-shadow: 0 0 16px rgba(0, 230, 118, 0.6);
+            transform: translateY(-2px);
+        }
+        .skill-btn.phase2-btn.heal-phase2 .skill-name { text-shadow: 0 0 8px #00e676; }
+
+        /* Floating Damage Text */
+        .damage-number {
+            position: absolute;
+            font-weight: bold;
+            font-size: 2rem;
+            pointer-events: none;
+            z-index: 60;
+            animation: floatUp 0.9s ease-out forwards;
+            text-shadow: 2px 2px 4px #000;
+        }
+
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0) scale(1.3); }
+            100% { opacity: 0; transform: translateY(-70px) scale(0.9); }
+        }
+
+        /* Ending Screen */
         #ending-screen {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.8);
-            z-index: 20;
+            background-color: rgba(0, 0, 0, 0.93);
+            z-index: 90;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             opacity: 0;
             pointer-events: none;
-            transition: opacity 2s ease;
+            transition: none;
+            padding: 25px;
+            text-align: center;
         }
 
-        #ending-text {
-            font-size: 4rem;
+        #ending-title {
+            font-size: 3rem;
             color: #ff0000;
             font-weight: bold;
-            text-shadow: 0 0 20px #ff0000, 2px 2px 5px #000;
-            text-align: center;
-            margin-bottom: 30px;
+            text-shadow: 0 0 25px #ff0000, 2px 2px 8px #000;
+            margin-bottom: 20px;
         }
 
-        #restart-btn {
-            background-color: transparent;
+        #ending-description {
+            font-size: 1.3rem;
+            max-width: 680px;
+            line-height: 1.6;
+            margin-bottom: 35px;
+            color: #ddd;
+            text-shadow: 1px 1px 3px #000;
+        }
+
+        .ending-btn-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .action-button {
+            background-color: rgba(20, 20, 25, 0.85);
             border: 2px solid #fff;
             color: #fff;
-            padding: 10px 30px;
-            font-family: 'Times New Roman', Times, serif;
-            font-size: 1.5rem;
+            padding: 12px 30px;
+            font-family: inherit;
+            font-size: 1.25rem;
             cursor: pointer;
             transition: all 0.3s;
+            border-radius: 6px;
         }
 
-        #restart-btn:hover {
+        .action-button:hover {
             background-color: #fff;
             color: #000;
+            box-shadow: 0 0 20px #fff;
         }
 
+        .action-button.primary {
+            border-color: #ff3333;
+            background: rgba(138, 3, 3, 0.6);
+        }
+        .action-button.primary:hover {
+            background: #ff2222;
+            color: #fff;
+            box-shadow: 0 0 20px #ff2222;
+        }
+
+        /* Screen Shake */
         .shake {
-            animation: shake 0.5s;
+            animation: shake 0.4s;
             animation-iteration-count: infinite;
         }
 
         @keyframes shake {
-            0% { transform: translate(1px, 1px) rotate(0deg); }
-            10% { transform: translate(-1px, -2px) rotate(-1deg); }
-            20% { transform: translate(-3px, 0px) rotate(1deg); }
-            30% { transform: translate(3px, 2px) rotate(0deg); }
-            40% { transform: translate(1px, -1px) rotate(1deg); }
-            50% { transform: translate(-1px, 2px) rotate(-1deg); }
-            60% { transform: translate(-3px, 1px) rotate(0deg); }
-            70% { transform: translate(3px, 1px) rotate(-1deg); }
-            80% { transform: translate(-1px, -1px) rotate(1deg); }
-            90% { transform: translate(1px, 2px) rotate(0deg); }
-            100% { transform: translate(1px, -2px) rotate(-1deg); }
+            0% { transform: translate(2px, 2px) rotate(0deg); }
+            15% { transform: translate(-3px, -3px) rotate(-1deg); }
+            30% { transform: translate(-4px, 1px) rotate(1deg); }
+            45% { transform: translate(3px, 3px) rotate(0deg); }
+            60% { transform: translate(1px, -2px) rotate(1deg); }
+            75% { transform: translate(-2px, 3px) rotate(-1deg); }
+            90% { transform: translate(3px, 1px) rotate(1deg); }
+            100% { transform: translate(2px, -2px) rotate(0deg); }
+        }
+
+        @media (max-width: 600px) {
+            #character {
+                height: 70vh;
+                max-width: 98vw;
+            }
+            #dialogue-box {
+                padding: 14px 16px;
+                min-height: 110px;
+            }
+            #speaker-name {
+                font-size: 1.2rem;
+            }
+            #dialogue-text {
+                font-size: 1.05rem;
+            }
+            .choice-btn {
+                padding: 12px 14px;
+                font-size: 0.95rem;
+            }
+            #ending-title {
+                font-size: 2.2rem;
+            }
+            #ending-description {
+                font-size: 1.05rem;
+            }
+            #skills-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        /* Admin Console Overlay & Modal */
+        #admin-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.75);
+            z-index: 9998;
+            backdrop-filter: blur(4px);
+        }
+
+        #admin-console {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 92%;
+            max-width: 680px;
+            max-height: 88vh;
+            background: rgba(7, 10, 15, 0.97);
+            border: 2px solid #00ff88;
+            box-shadow: 0 0 35px rgba(0, 255, 136, 0.35), inset 0 0 20px rgba(0, 0, 0, 0.95);
+            border-radius: 8px;
+            z-index: 9999;
+            color: #d0f5df;
+            font-family: 'Consolas', 'Courier New', monospace;
+            flex-direction: column;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+
+        #admin-console.active, #admin-overlay.active {
+            display: flex;
+        }
+
+        #admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 18px;
+            background: rgba(0, 255, 136, 0.12);
+            border-bottom: 1px solid #00ff88;
+        }
+
+        #admin-title {
+            font-size: 1.05rem;
+            font-weight: bold;
+            color: #00ff88;
+            letter-spacing: 2px;
+            text-shadow: 0 0 8px rgba(0, 255, 136, 0.6);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        #admin-close-btn {
+            background: transparent;
+            border: 1px solid #00ff88;
+            color: #00ff88;
+            padding: 4px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+
+        #admin-close-btn:hover {
+            background: #00ff88;
+            color: #000;
+        }
+
+        #admin-body {
+            padding: 16px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            max-height: calc(88vh - 110px);
+        }
+
+        .admin-section-title {
+            font-size: 0.85rem;
+            color: #76ebb0;
+            border-bottom: 1px dashed rgba(0, 255, 136, 0.35);
+            padding-bottom: 4px;
+            margin-bottom: 8px;
+            letter-spacing: 1px;
+            font-weight: bold;
+        }
+
+        .admin-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 10px;
+        }
+
+        .admin-btn {
+            background: rgba(5, 30, 18, 0.75);
+            border: 1px solid rgba(0, 255, 136, 0.4);
+            color: #e5fffa;
+            padding: 10px 14px;
+            border-radius: 4px;
+            cursor: pointer;
+            text-align: left;
+            font-family: inherit;
+            font-size: 0.85rem;
+            line-height: 1.35;
+            transition: all 0.2s;
+        }
+
+        .admin-btn strong {
+            display: block;
+            color: #00ff88;
+            margin-bottom: 3px;
+        }
+
+        .admin-btn:hover {
+            background: rgba(0, 255, 136, 0.2);
+            border-color: #00ff88;
+            transform: translateY(-2px);
+            box-shadow: 0 0 12px rgba(0, 255, 136, 0.35);
+        }
+
+        .admin-btn.cheat {
+            border-color: rgba(255, 170, 0, 0.5);
+            background: rgba(40, 25, 5, 0.75);
+        }
+
+        .admin-btn.cheat strong {
+            color: #ffbb33;
+        }
+
+        .admin-btn.cheat:hover {
+            background: rgba(255, 170, 0, 0.25);
+            border-color: #ffaa00;
+            box-shadow: 0 0 12px rgba(255, 170, 0, 0.35);
+        }
+
+        #admin-footer-note {
+            font-size: 0.78rem;
+            color: #6da387;
+            text-align: center;
+            padding: 10px;
+            border-top: 1px solid rgba(0, 255, 136, 0.2);
+            background: rgba(0, 0, 0, 0.4);
         }
     </style>
 </head>
@@ -201,78 +1154,926 @@
 
     <div id="game-container">
         <div id="background"></div>
+        <div id="vignette-overlay"></div>
         <div id="blood-overlay"></div>
-        
-        <img id="character" src="anderson_char.webp" alt="Anderson">
-        
+        <div id="flash-overlay"></div>
+
+        <div id="top-bar">
+            <div id="chapter-badge">CHƯƠNG 1: BÓNG MA TRONG RỪNG</div>
+            <button id="audio-btn" onclick="toggleAudio()">ÂM THANH: BẬT</button>
+        </div>
+
+        <img id="character" src="assets/images/characters/anderson_char.webp" alt="Character">
+
+        <!-- Visual Novel UI Layer -->
         <div id="ui-layer">
             <div id="dialogue-box">
-                <div id="speaker-name">Anderson</div>
+                <div id="speaker-container">
+                    <div id="speaker-name">Anderson</div>
+                    <span id="speaker-tag">Ác Thể</span>
+                </div>
                 <div id="dialogue-text"></div>
             </div>
             
             <div id="choices-container">
-                <!-- Choices will be injected here by JS -->
+                <!-- Injected via script -->
+            </div>
+        </div>
+
+        <!-- Chase Mini-Game UI Layer -->
+        <div id="chase-screen">
+            <div id="chase-hud">
+                <div class="hud-row">
+                    <span style="font-weight:bold; color:#ffcc00;">KHOẢNG CÁCH THOÁT:</span>
+                    <div class="progress-bar-bg">
+                        <div id="distance-fill" class="progress-fill" style="width: 0%;"></div>
+                    </div>
+                    <span id="distance-text" style="font-family:monospace; font-weight:bold;">100m</span>
+                </div>
+                <div class="hud-row">
+                    <span style="font-weight:bold; color:#ff3333;">CỰ LY MAROA (NGUY HIỂM):</span>
+                    <div class="progress-bar-bg">
+                        <div id="danger-fill" class="progress-fill" style="width: 25%;"></div>
+                    </div>
+                    <span id="danger-text" style="font-family:monospace; font-weight:bold; color:#ff4444;">25m</span>
+                </div>
+            </div>
+
+            <canvas id="chase-canvas"></canvas>
+
+            <!-- Touch Controls for Mobile Platformer -->
+            <div id="chase-controls-mobile">
+                <button class="chase-btn" id="chase-left-btn">SANG TRÁI</button>
+                <button class="chase-btn" id="chase-jump-btn">NHẢY LÊN</button>
+                <button class="chase-btn" id="chase-right-btn">SANG PHẢI</button>
+            </div>
+        </div>
+
+        <!-- Boss Battle UI Layer -->
+        <div id="battle-screen">
+            <div id="boss-hud">
+                <div class="boss-card">
+                    <div class="boss-header">
+                        <span class="boss-name" id="boss-name-label">ANDERSON - ÁC QUỶ ĐẦM LẦY</span>
+                        <span class="boss-status" id="boss-status-tag">Bình Thường</span>
+                    </div>
+                    <div class="hp-bar-outer">
+                        <div id="boss-hp-fill" class="hp-bar-inner" style="width: 100%;"></div>
+                        <span class="bar-label" id="boss-hp-text">350 / 350 HP</span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="battle-arena">
+                <div id="boss-speech-bubble" class="boss-speech-bubble">
+                    <div class="boss-speech-header">
+                        <span class="boss-speech-name" id="boss-speech-name">Anderson</span>
+                        <span class="boss-speech-tag" id="boss-speech-tag">Ác Thể</span>
+                    </div>
+                    <div class="boss-speech-text" id="boss-speech-text"></div>
+                </div>
+                <img id="battle-boss-sprite" src="assets/images/characters/anderson_char.webp" alt="Anderson Boss">
+            </div>
+
+            <div id="battle-ui-panel">
+                <div id="player-status-box">
+                    <div class="stat-group">
+                        <div class="stat-label">
+                            <span style="color:#55ff77;">SINH LỰC (HP)</span>
+                            <span id="player-hp-text">120 / 120</span>
+                        </div>
+                        <div class="hp-bar-outer" style="height:12px;">
+                            <div id="player-hp-fill" class="hp-bar-inner" style="width: 100%;"></div>
+                        </div>
+                    </div>
+                    <div class="stat-group">
+                        <div class="stat-label">
+                            <span style="color:#00d2ff;">CHÂN KHÍ (KI)</span>
+                            <span id="player-ki-text">100 / 100</span>
+                        </div>
+                        <div class="hp-bar-outer" style="height:12px;">
+                            <div id="player-ki-fill" class="hp-bar-inner" style="width: 100%;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="battle-log">
+                    <div class="log-entry">Trận quyết đấu bắt đầu. Hãy vận dụng các bí thuật của Ninja Đạo.</div>
+                </div>
+
+                <div id="phase2-moves-banner" class="phase2-moves-banner">
+                    <span>⚡</span>
+                    <span>HẮC LONG THỨC TỈNH • CHIẾN KỸ GIAI ĐOẠN 2</span>
+                    <span>⚡</span>
+                </div>
+
+                <div id="skills-grid">
+                    <button class="skill-btn" id="skill-slash-btn" onclick="executePlayerTurn('slash')">
+                        <span class="skill-name">Trảm Kích</span>
+                        <span class="skill-desc">Chém cơ bản. Hồi +25 Ki.</span>
+                        <span class="skill-cost">+25 Ki | 18-24 ST</span>
+                    </button>
+                    <button class="skill-btn" id="skill-kunai-btn" onclick="executePlayerTurn('kunai')">
+                        <span class="skill-name">Phi Đao Hắc Ám</span>
+                        <span class="skill-desc">Gây xuất huyết 2 lượt.</span>
+                        <span class="skill-cost">20 Ki | 25 ST + Độc</span>
+                    </button>
+                    <button class="skill-btn" id="skill-dodge-btn" onclick="executePlayerTurn('dodge')">
+                        <span class="skill-name">Thân Pháp Ninja</span>
+                        <span class="skill-desc">Giảm 60% sát thương và phản đòn.</span>
+                        <span class="skill-cost">20 Ki | Phản Đòn</span>
+                    </button>
+                    <button class="skill-btn" id="skill-dragon-btn" onclick="executePlayerTurn('dragon')">
+                        <span class="skill-name">Long Hống Kích</span>
+                        <span class="skill-desc">Sát chiêu phá giáp cực mạnh.</span>
+                        <span class="skill-cost">40 Ki | 55-70 ST</span>
+                    </button>
+                    <button class="skill-btn" id="skill-heal-btn" onclick="executePlayerTurn('heal')">
+                        <span class="skill-name">Khí Công Hồi Xuân</span>
+                        <span class="skill-desc">Hồi phục sinh lực tức thì.</span>
+                        <span class="skill-cost">25 Ki | +55 HP</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ending Screen -->
+        <div id="ending-screen">
+            <div id="ending-title">BẠN ĐÃ CHẾT</div>
+            <div id="ending-description">Cơn ác mộng đã nuốt chửng bạn...</div>
+            <div class="ending-btn-group" id="ending-buttons">
+                <button class="action-button primary" onclick="restartCurrentChapter()">Bắt Đầu Lại Đầu Chương</button>
+                <button class="action-button" onclick="startGame()">Chơi Lại Từ Đầu</button>
+            </div>
+        </div>
+
+        <div id="admin-overlay" onclick="toggleAdminConsole(false)"></div>
+        <div id="admin-console">
+            <div id="admin-header">
+                <div id="admin-title">
+                    <span>&#9881;</span> ADMIN CONSOLE [QUẢN TRỊ VIÊN]
+                </div>
+                <button id="admin-close-btn" onclick="toggleAdminConsole(false)">ĐÓNG [ESC]</button>
+            </div>
+            <div id="admin-body">
+                <div class="admin-section-title">CHUYỂN NHANH CHƯƠNG TRUYỆN</div>
+                <div class="admin-grid">
+                    <button class="admin-btn" onclick="adminJumpChapter('ch1_start')">
+                        <strong>Chương 1: Bóng Ma Trong Rừng</strong>
+                        Gặp gỡ ác thể Anderson ban đầu (Node 0)
+                    </button>
+                    <button class="admin-btn" onclick="adminJumpChapter('ch1_maroa')">
+                        <strong>Chương 1: Thoát Nạn & Maroa</strong>
+                        Maroa xuất hiện giải cứu (Node maroa_rescue)
+                    </button>
+                    <button class="admin-btn" onclick="adminJumpChapter('ch2_house')">
+                        <strong>Chương 2: Căn Nhà Của Maroa</strong>
+                        Bữa tối thịt rừng & phòng ngủ tối (Node 7)
+                    </button>
+                    <button class="admin-btn" onclick="adminJumpChapter('ch2_angry')">
+                        <strong>Chương 2: Chân Tướng Đồ Tể</strong>
+                        Maroa cuồng nộ cầm dao phay (Node 11)
+                    </button>
+                    <button class="admin-btn" onclick="adminJumpChapter('chase')">
+                        <strong>Màn Rượt Đuổi: Trốn Chạy</strong>
+                        Mini-game né bẫy gấu và rễ cây thoát Maroa
+                    </button>
+                    <button class="admin-btn" onclick="adminJumpChapter('ch3_dojo')">
+                        <strong>Chương 3: Đạo Của Ninja</strong>
+                        Gặp Ninja Đạo tại đền trúc cổ (Node 12)
+                    </button>
+                    <button class="admin-btn" onclick="adminJumpChapter('ch3_skills')">
+                        <strong>Chương 3: Nhận Hắc Long Kiếm</strong>
+                        Học 5 bí kỹ Ninja chuẩn bị quyết chiến (Node 16)
+                    </button>
+                    <button class="admin-btn" onclick="adminJumpChapter('boss_dialogue')">
+                        <strong>Chương Kết: Gặp Lại Anderson</strong>
+                        Đối thoại quyết chiến tại Tế Đàn Huyết Nguyệt (Node 17)
+                    </button>
+                    <button class="admin-btn" onclick="adminJumpChapter('boss_battle')">
+                        <strong>Chương Kết: Quyết Chiến Đánh Boss</strong>
+                        Vào thẳng trận đấu theo lượt với Anderson
+                    </button>
+                    <button class="admin-btn" onclick="adminJumpChapter('victory')">
+                        <strong>Kết Thúc: Chiến Thắng Huy Hoàng</strong>
+                        <span>Hạ gục Anderson, đối thoại tàn cục và vinh danh</span>
+                    </button>
+                </div>
+
+                <div class="admin-section-title">CÔNG CỤ BỔ TRỢ & CHEAT</div>
+                <div class="admin-grid">
+                    <button class="admin-btn cheat" onclick="adminCheat('godmode')">
+                        <strong>Bất Tử Sinh Lực (God Mode)</strong>
+                        Hồi phục và nâng lên 999 HP
+                    </button>
+                    <button class="admin-btn cheat" onclick="adminCheat('fullki')">
+                        <strong>Vô Hạn Chân Khí (Max Ki)</strong>
+                        Nạp đầy 100/100 Ki tức thì
+                    </button>
+                    <button class="admin-btn cheat" onclick="adminCheat('onehit')">
+                        <strong>Nhất Kích Tất Sát (1-Hit Kill)</strong>
+                        Giảm máu Anderson xuống còn 1 HP
+                    </button>
+                    <button class="admin-btn cheat" onclick="adminCheat('winchase')">
+                        <strong>Thắng Ngay Màn Rượt Đuổi</strong>
+                        Vượt qua vực thẳm an toàn
+                    </button>
+                </div>
+            </div>
+            <div id="admin-footer-note">
+                Mẹo: Gõ tổ hợp phím hoặc chuỗi "admin" bất kỳ lúc nào để mở console này.
             </div>
         </div>
     </div>
 
-    <div id="ending-screen">
-        <div id="ending-text"></div>
-        <button id="restart-btn" onclick="startGame()">Chơi Lại</button>
-    </div>
-
     <script>
-        const storyNodes = {
+        /* ==============================================================
+           RPG MAKER HORROR AUDIO ENGINE
+           ============================================================== */
+        let isAudioMuted = false;
+        let currentBGMType = null;
+        let currentAudioElement = null;
+
+        // Audio track mapping
+        const bgmTracks = {
+            'ambient': 'assets/audio/bgm_horror_ambient.mp3',
+            'house': 'assets/audio/bgm_horror_house.mp3',
+            'chase': 'assets/audio/bgm_horror_chase.mp3',
+            'dojo': 'assets/audio/bgm_horror_dojo.mp3',
+            'boss': 'assets/audio/bgm_horror_boss.mp3',
+            'death': 'assets/audio/bgm_death.mp3',
+            'victory': 'assets/audio/bgm_victory_cinematic.mp3'
+        };
+
+        const loadedAudioObjects = {};
+
+        function playBGM(type) {
+            currentBGMType = type;
+            if (isAudioMuted) return;
+
+            const trackFile = bgmTracks[type];
+            if (!trackFile) return;
+
+            if (currentAudioElement) {
+                try {
+                    currentAudioElement.pause();
+                    currentAudioElement.currentTime = 0;
+                } catch(e) {}
+            }
+
+            if (!loadedAudioObjects[type]) {
+                const audio = new Audio(trackFile);
+                audio.loop = true;
+                audio.volume = 0.65;
+                loadedAudioObjects[type] = audio;
+            }
+
+            currentAudioElement = loadedAudioObjects[type];
+            currentAudioElement.currentTime = 0;
+            currentAudioElement.play().catch(e => {
+                // Autoplay blocked until user interaction
+            });
+        }
+
+        function stopBGM() {
+            if (currentAudioElement) {
+                try {
+                    currentAudioElement.pause();
+                } catch(e) {}
+            }
+        }
+
+        function toggleAudio() {
+            isAudioMuted = !isAudioMuted;
+            const btn = document.getElementById('audio-btn');
+            if (isAudioMuted) {
+                btn.innerText = 'ÂM THANH: TẮT';
+                btn.style.color = '#888';
+                stopBGM();
+            } else {
+                btn.innerText = 'ÂM THANH: BẬT';
+                btn.style.color = '#fff';
+                if (currentBGMType) {
+                    playBGM(currentBGMType);
+                }
+            }
+        }
+
+        /* Web Audio API & Audio File Engine for SFX */
+        const sfxTracks = {
+            'slash': 'assets/audio/sword_slash.mp3',
+            'sword_slash': 'assets/audio/sword_slash.mp3',
+            'kunai': 'assets/audio/kunai_throw.mp3',
+            'kunai_throw': 'assets/audio/kunai_throw.mp3',
+            'dragon': 'assets/audio/dragon_roar.mp3',
+            'dragon_roar': 'assets/audio/dragon_roar.mp3',
+            'heal': 'assets/audio/heal.mp3',
+            'rend': 'assets/audio/anderson_rend.mp3',
+            'anderson_rend': 'assets/audio/anderson_rend.mp3',
+            'roar': 'assets/audio/anderson_roar.mp3',
+            'anderson_roar': 'assets/audio/anderson_roar.mp3',
+            'bite': 'assets/audio/bite.mp3',
+            'devour': 'assets/audio/bite.mp3',
+            'desperation': 'assets/audio/desperation.mp3',
+            'annihilation': 'assets/audio/annihilation.flac',
+            'vanish': 'assets/audio/annihilation.flac'
+        };
+
+        const loadedSfxObjects = {};
+
+        function preloadSFX() {
+            Object.values(sfxTracks).forEach(path => {
+                if (!loadedSfxObjects[path]) {
+                    const audio = new Audio(path);
+                    audio.preload = 'auto';
+                    loadedSfxObjects[path] = audio;
+                }
+            });
+        }
+
+        let sfxCtx = null;
+        function initSFX() {
+            preloadSFX();
+            if (!sfxCtx) {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                sfxCtx = new AudioContext();
+            }
+            if (sfxCtx.state === 'suspended') {
+                sfxCtx.resume();
+            }
+        }
+
+        function playSFX(type) {
+            if (isAudioMuted) return;
+
+            if (sfxTracks[type]) {
+                const trackFile = sfxTracks[type];
+                try {
+                    const audio = new Audio(trackFile);
+                    audio.volume = 0.85;
+                    audio.currentTime = 0;
+                    audio.play().catch(e => {
+                        playSynthSFX(type);
+                    });
+                    return;
+                } catch (e) {
+                    playSynthSFX(type);
+                    return;
+                }
+            }
+
+            playSynthSFX(type);
+        }
+
+        function playSynthSFX(type) {
+            initSFX();
+            if (!sfxCtx) return;
+            const now = sfxCtx.currentTime;
+
+            if (type === 'slash' || type === 'sword_slash' || type === 'rend' || type === 'anderson_rend') {
+                const osc = sfxCtx.createOscillator();
+                const gain = sfxCtx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(650, now);
+                osc.frequency.exponentialRampToValueAtTime(70, now + 0.16);
+                gain.gain.setValueAtTime(0.35, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.16);
+                osc.connect(gain);
+                gain.connect(sfxCtx.destination);
+                osc.start(now);
+                osc.stop(now + 0.16);
+            } else if (type === 'kunai' || type === 'kunai_throw') {
+                const osc = sfxCtx.createOscillator();
+                const gain = sfxCtx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(800, now);
+                osc.frequency.exponentialRampToValueAtTime(150, now + 0.12);
+                gain.gain.setValueAtTime(0.3, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.12);
+                osc.connect(gain);
+                gain.connect(sfxCtx.destination);
+                osc.start(now);
+                osc.stop(now + 0.12);
+            } else if (type === 'hit' || type === 'bite' || type === 'devour') {
+                const osc = sfxCtx.createOscillator();
+                const gain = sfxCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(150, now);
+                osc.frequency.exponentialRampToValueAtTime(25, now + 0.22);
+                gain.gain.setValueAtTime(0.5, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.22);
+                osc.connect(gain);
+                gain.connect(sfxCtx.destination);
+                osc.start(now);
+                osc.stop(now + 0.22);
+            } else if (type === 'dodge') {
+                const osc = sfxCtx.createOscillator();
+                const gain = sfxCtx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(280, now);
+                osc.frequency.exponentialRampToValueAtTime(850, now + 0.12);
+                gain.gain.setValueAtTime(0.25, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+                osc.connect(gain);
+                gain.connect(sfxCtx.destination);
+                osc.start(now);
+                osc.stop(now + 0.15);
+            } else if (type === 'heal') {
+                [330, 440, 554, 659].forEach((freq, idx) => {
+                    const osc = sfxCtx.createOscillator();
+                    const gain = sfxCtx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+                    gain.gain.setValueAtTime(0.2, now + idx * 0.08);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + idx * 0.08 + 0.25);
+                    osc.connect(gain);
+                    gain.connect(sfxCtx.destination);
+                    osc.start(now + idx * 0.08);
+                    osc.stop(now + idx * 0.08 + 0.25);
+                });
+            } else if (type === 'dragon' || type === 'dragon_roar') {
+                const osc = sfxCtx.createOscillator();
+                const gain = sfxCtx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(90, now);
+                osc.frequency.linearRampToValueAtTime(220, now + 0.2);
+                osc.frequency.exponentialRampToValueAtTime(45, now + 0.45);
+                gain.gain.setValueAtTime(0.4, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.45);
+                osc.connect(gain);
+                gain.connect(sfxCtx.destination);
+                osc.start(now);
+                osc.stop(now + 0.45);
+            } else if (type === 'jump') {
+                const osc = sfxCtx.createOscillator();
+                const gain = sfxCtx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(180, now);
+                osc.frequency.exponentialRampToValueAtTime(460, now + 0.16);
+                gain.gain.setValueAtTime(0.3, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.18);
+                osc.connect(gain);
+                gain.connect(sfxCtx.destination);
+                osc.start(now);
+                osc.stop(now + 0.18);
+            } else if (type === 'screech' || type === 'roar' || type === 'anderson_roar' || type === 'desperation') {
+                const osc = sfxCtx.createOscillator();
+                const gain = sfxCtx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(900, now);
+                osc.frequency.linearRampToValueAtTime(220, now + 0.4);
+                gain.gain.setValueAtTime(0.4, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.45);
+                osc.connect(gain);
+                gain.connect(sfxCtx.destination);
+                osc.start(now);
+                osc.stop(now + 0.45);
+            }
+        }
+
+        /* ==============================================================
+           STORY DATA & STATE MACHINE (NO EMOJIS)
+           ============================================================== */
+                                const storyNodes = {
+            // CHAPTER 1: Anderson confrontation & Maroa rescue (Original Anderson Interactions)
             0: {
-                text: "Đêm nay thật lạnh lẽo... Cậu có ngửi thấy mùi máu tanh lẫn trong sương mờ không? Nó làm ta thấy cồn cào trong dạ dày...",
+                chapter: "CHƯƠNG 1: BÓNG MA TRONG RỪNG",
+                bg: "assets/images/backgrounds/darkforest_bg.jpg",
+                speaker: "Anderson",
+                speakerTag: "Ác Thể",
+                char: "assets/images/characters/anderson_char.webp",
+                charClass: "",
+                bgm: "ambient",
+                text: `Đêm nay thật lạnh lẽo... Cậu có ngửi thấy mùi máu tanh lẫn trong sương mờ không? Nó làm ta thấy cồn cào trong dạ dày...`,
                 choices: [
                     { text: "Ông là ai? Tại sao lại tiếp cận tôi?", next: 1 },
                     { text: "Tôi không ngửi thấy gì cả, tôi chỉ muốn rời khỏi đây ngay lập tức.", next: 2 }
                 ]
             },
             1: {
-                text: "Ta ư? Chỉ là một kẻ lang thang thích thu thập những mảnh xương vụn. Cậu có một bộ xương rất đẹp đấy... Đặc biệt là phần xương cổ.",
+                chapter: "CHƯƠNG 1: BÓNG MA TRONG RỪNG",
+                bg: "assets/images/backgrounds/darkforest_bg.jpg",
+                speaker: "Anderson",
+                speakerTag: "Ác Thể",
+                char: "assets/images/characters/anderson_char.webp",
+                charClass: "",
+                bgm: "ambient",
+                text: `Ta ư? Chỉ là một kẻ lang thang thích thu thập những mảnh xương vụn. Cậu có một bộ xương rất đẹp đấy... Đặc biệt là phần xương cổ.`,
                 choices: [
                     { text: "Đừng lại gần! Tôi có vũ khí đấy!", next: 3 },
                     { text: "Làm ơn, gia đình tôi đang đợi tôi về nhà...", next: 4 }
                 ]
             },
             2: {
-                text: "Rời khỏi đây sao? Rừng đã khóa chặt cậu rồi. Cậu có nghe thấy tiếng nhai rào rạo ở bụi cây đằng kia không? Bọn chúng cũng đang rất đói.",
+                chapter: "CHƯƠNG 1: BÓNG MA TRONG RỪNG",
+                bg: "assets/images/backgrounds/darkforest_bg.jpg",
+                speaker: "Anderson",
+                speakerTag: "Ác Thể",
+                char: "assets/images/characters/anderson_char.webp",
+                charClass: "",
+                bgm: "ambient",
+                text: `Rời khỏi đây sao? Rừng đã khóa chặt cậu rồi. Cậu có nghe thấy tiếng nhai rào rạo ở bụi cây đằng kia không? Bọn chúng cũng đang rất đói.`,
                 choices: [
                     { text: "Ông bị điên rồi! (Cố gắng bỏ chạy)", next: 3 },
                     { text: "Vậy tôi phải làm sao để được sống sót?", next: 5 }
                 ]
             },
             3: {
-                text: "Một lựa chọn ngu ngốc... Ta rất thích những con mồi biết giãy giụa. Tiếng thét của cậu sẽ là bản nhạc tuyệt vời nhất đêm nay.",
-                choices: [],
-                ending: "bad"
+                chapter: "CHƯƠNG 1: BÓNG MA TRONG RỪNG",
+                bg: "assets/images/backgrounds/darkforest_bg.jpg",
+                speaker: "Anderson",
+                speakerTag: "Ác Thể",
+                char: "assets/images/characters/anderson_char.webp",
+                charClass: "angry-glow",
+                bgm: "ambient",
+                onEnter: () => {
+                    flashScreen();
+                    triggerShake(800);
+                    playSFX('slash');
+                },
+                text: `Một lựa chọn ngu ngốc... Ta rất thích những con mồi biết giãy giụa. Tiếng thét của cậu sẽ là bản nhạc tuyệt vời nhất đêm nay.`,
+                choices: [
+                    { text: "Anderson lao tới trong tuyệt vọng...", next: "ending_anderson_bad", primary: true }
+                ]
             },
             4: {
-                text: "Gia đình? Tình yêu thương thật kinh tởm, nhưng nó khiến mùi vị thịt của cậu bớt ngon đi một chút... Thôi được rồi, nể tình màn đêm tĩnh lặng này, cút đi trước khi ta đổi ý.",
-                choices: [],
-                ending: "good"
+                chapter: "CHƯƠNG 1: BÓNG MA TRONG RỪNG",
+                bg: "assets/images/backgrounds/darkforest_bg.jpg",
+                speaker: "Anderson",
+                speakerTag: "Ác Thể",
+                char: "assets/images/characters/anderson_char.webp",
+                charClass: "",
+                bgm: "ambient",
+                text: `Gia đình? Tình yêu thương thật kinh tởm, nhưng nó khiến mùi vị thịt của cậu bớt ngon đi một chút... Thôi được rồi, nể tình màn đêm tĩnh lặng này, cút đi trước khi ta đổi ý.`,
+                choices: [
+                    { text: "Vội vã rời khỏi Anderson, chạy sâu vào trong rừng...", next: "maroa_rescue", primary: true }
+                ]
             },
             5: {
-                text: "Hãy để lại cho ta một bộ phận trên cơ thể cậu... Một ngón tay, hoặc một con mắt. Đổi lấy phần đời còn lại. Một sự trao đổi công bằng chứ?",
+                chapter: "CHƯƠNG 1: BÓNG MA TRONG RỪNG",
+                bg: "assets/images/backgrounds/darkforest_bg.jpg",
+                speaker: "Anderson",
+                speakerTag: "Ác Thể",
+                char: "assets/images/characters/anderson_char.webp",
+                charClass: "",
+                bgm: "ambient",
+                text: `Hãy để lại cho ta một bộ phận trên cơ thể cậu... Một ngón tay, hoặc một con mắt. Đổi lấy phần đời còn lại. Một sự trao đổi công bằng chứ?`,
                 choices: [
                     { text: "Không bao giờ! Tôi thà chết còn hơn!", next: 3 },
                     { text: "Ông... ông muốn ngón tay nào...", next: 6 }
                 ]
             },
             6: {
-                text: "Ha ha ha... Ta đùa thôi. Sự tuyệt vọng và hèn nhát trong mắt cậu đã làm ta thỏa mãn rồi. Đi đi, và đừng bao giờ quay đầu lại nhìn khu rừng này nữa.",
-                choices: [],
-                ending: "creepy_good"
+                chapter: "CHƯƠNG 1: BÓNG MA TRONG RỪNG",
+                bg: "assets/images/backgrounds/darkforest_bg.jpg",
+                speaker: "Anderson",
+                speakerTag: "Ác Thể",
+                char: "assets/images/characters/anderson_char.webp",
+                charClass: "",
+                bgm: "ambient",
+                text: `Ha ha ha... Ta đùa thôi. Sự tuyệt vọng và hèn nhát trong mắt cậu đã làm ta thỏa mãn rồi. Đi đi, và đừng bao giờ quay đầu lại nhìn khu rừng này nữa.`,
+                choices: [
+                    { text: "Run rẩy quay lưng chạy thục mạng vào bóng đêm...", next: "maroa_rescue", primary: true }
+                ]
+            },
+            "maroa_rescue": {
+                chapter: "CHƯƠNG 1: BÓNG MA TRONG RỪNG",
+                bg: "assets/images/backgrounds/darkforest_bg.jpg",
+                speaker: "Người Dẫn Chuyện",
+                char: "assets/images/characters/maroa_neutral.png",
+                charClass: "",
+                bgm: "ambient",
+                text: `Bạn thoát khỏi móng vuốt của Anderson và cắm đầu chạy trong làn sương mù giá lạnh. Bất ngờ phía trước le lói ánh đèn lồng ấm áp.\n\nMột người đàn ông với vẻ ngoài nhã nhặn bước ra từ lùm cây: 'Cậu có bị thương ở đâu không? May mà ta đi tuần bẫy thú nghe thấy tiếng thở dốc. Tên quỷ Anderson đó đã ăn thịt không biết bao nhiêu người lạc vào rừng rồi.'`,
+                choices: [
+                    { text: "Cảm ơn anh! Vừa rồi tôi suýt nữa đã làm mồi cho ông ta...", next: "maroa_invite" }
+                ]
+            },
+            "maroa_invite": {
+                chapter: "CHƯƠNG 1: BÓNG MA TRONG RỪNG",
+                bg: "assets/images/backgrounds/darkforest_bg.jpg",
+                speaker: "Maroa",
+                speakerTag: "Thợ Săn",
+                char: "assets/images/characters/maroa_neutral.png",
+                charClass: "",
+                bgm: "ambient",
+                text: `Maroa gật đầu đầy vẻ thông cảm: 'Ta là thợ săn sống ở đây nhiều năm. Đêm đã khuya, sương độc sắp tràn xuống thung lũng và Anderson vẫn còn lởn vởn quanh đây. Căn nhà gỗ của ta ở ngay phía trước, rất an toàn. Về đó nghỉ ngơi qua đêm, sáng mai ta sẽ dẫn đường cho cậu về làng.'`,
+                choices: [
+                    { text: "Tuyệt quá, làm phiền anh Maroa rồi!", next: 7, primary: true }
+                ]
+            },
+
+            // CHAPTER 2: Sweet trap at Maroa's house
+            7: {
+                chapter: "CHƯƠNG 2: NGÔI NHÀ CỦA MAROA",
+                bg: "assets/images/backgrounds/maroa_house.jpg",
+                speaker: "Maroa",
+                speakerTag: "Chủ Nhà",
+                char: "assets/images/characters/maroa_neutral.png",
+                charClass: "",
+                bgm: "house",
+                text: `Căn nhà gỗ cũ kỹ âm u nằm cô độc giữa rừng già, không gian xung quanh tĩnh mịch đến rùng người.\n\n'Cứ tự nhiên như ở nhà của mình nhé. Ta vừa nhóm bếp lò, có hầm sẵn một nồi canh thịt rừng đặc biệt. Uống một bát cho ấm bụng rồi hãy đi ngủ.'`,
+                choices: [
+                    { text: "Mùi canh thịt... nồng nặc mùi tanh lạ lùng quá...", next: 8 },
+                    { text: "Cảm ơn lòng hiếu khách của anh, tôi thực sự rã rời rồi.", next: 9 }
+                ]
+            },
+            8: {
+                chapter: "CHƯƠNG 2: NGÔI NHÀ CỦA MAROA",
+                bg: "assets/images/backgrounds/maroa_kitchen.jpg",
+                speaker: "Maroa",
+                speakerTag: "Chủ Nhà",
+                char: "assets/images/characters/maroa_neutral.png",
+                charClass: "",
+                bgm: "house",
+                text: `Ánh mắt Maroa lóe lên tia nhìn lạnh lẽo trong một phần giây rồi nhanh chóng trở lại hiền từ:\n\n'À, gia vị thảo mộc bí truyền của vùng rừng núi thôi, giúp tĩnh tâm và ngủ rất say đấy. Nào, vào buồng trong nghỉ ngơi đi. Đêm nay cứ ngủ một giấc thật sâu nhé...'`,
+                choices: [
+                    { text: "Cảm ơn anh, tôi xin phép vào phòng ngủ trước.", next: 9 }
+                ]
+            },
+            9: {
+                chapter: "CHƯƠNG 2: BƯỚC NGOẶT ĐỊNH MỆNH",
+                bg: "assets/images/backgrounds/maroa_room_dark.jpg",
+                speaker: "Người Dẫn Chuyện",
+                char: "",
+                charClass: "",
+                bgm: "house",
+                text: `Đêm đã về khuya. Căn phòng ngủ tối tăm ẩm thấp, chỉ có tiếng gió rít qua khe vách gỗ. Cơn kiệt sức nặng trĩu đè lên mí mắt bạn.\n\nNhưng sâu trong tiềm thức, một linh cảm lạnh gáy mách bảo có điều gì đó cực kỳ ma quái đang diễn ra ngoài gian bếp...`,
+                choices: [
+                    { text: "ĐI NGỦ (Quá kiệt sức, nhắm mắt ngủ một giấc say)", next: "ending_sleep" },
+                    { text: "GIỮ TỈNH TÁO (Nghi ngờ, giả vờ ngủ để rình xem)", next: 10, primary: true }
+                ]
+            },
+            10: {
+                chapter: "CHƯƠNG 2: CHÂN TƯỚNG KINH HOÀNG",
+                bg: "assets/images/backgrounds/maroa_kitchen.jpg",
+                speaker: "Người Dẫn Chuyện",
+                char: "",
+                charClass: "",
+                bgm: "house",
+                text: `Bạn nằm im, nín thở. Từ gian bếp vang lên tiếng mài kim loại rợn tóc gáy: xoẹt... xoẹt... xoẹt...\n\nBạn rón rén nhón chân nhìn qua khe hở cánh cửa: Trong bếp, một cái vạc khổng lồ đang sôi ùng ục. Xung quanh treo đầy những xâu thịt và xương sọ người khô khốc! Maroa đang mài một con dao phay đồ tể sáng loáng, vừa liếm mép vừa cười the thé: 'Thịt tươi non mềm... hầm mật ong hay nướng mọi đây? He he he...'`,
+                choices: [
+                    { text: "Kinh hoàng lùi lại, vô tình giẫm gãy thanh gỗ mục!", next: 11 }
+                ]
+            },
+            11: {
+                chapter: "CHƯƠNG 2: NỖI GIẬN CỦA ĐỒ TỂ",
+                bg: "assets/images/backgrounds/maroa_kitchen.jpg",
+                speaker: "Maroa",
+                speakerTag: "Cuồng Nộ",
+                char: "assets/images/characters/maroa_angry.png",
+                charClass: "angry-glow",
+                bgm: "chase",
+                onEnter: () => {
+                    flashScreen();
+                    triggerShake(1200);
+                    playSFX('screech');
+                    document.getElementById('blood-overlay').style.opacity = '0.7';
+                },
+                text: `RẮC! Tiếng gỗ gãy vang lên khô khốc!\n\nMaroa đột ngột xoay phắt lại, con ngươi đỏ rực như máu, khuôn mặt biến dạng dữ tợn! Hắn rống lên như thú hoang:\n\n'MÀY ĐÃ THẤY HẾT RỒI SAO?! LŨ THỊT SỐNG TÒ MÒ ĐỀU PHẢI CHẾT! TA SẼ PHANH THÂY MÀY NGAY ĐÊM NAY!!!'`,
+                choices: [
+                    { text: "PHÁ CỬA SỔ, LAO RA RỪNG ĐÊM CHẠY TRỐN!", next: "start_chase", primary: true }
+                ]
+            },
+
+            // CHAPTER 3: Meeting Ninja Dao
+            12: {
+                chapter: "CHƯƠNG 3: ĐẠO CỦA NINJA",
+                bg: "assets/images/backgrounds/ninja_dojo.jpeg",
+                speaker: "Người Dẫn Chuyện",
+                char: "assets/images/characters/ninja_Dao.webp",
+                charClass: "ninja-glow",
+                bgm: "dojo",
+                onEnter: () => {
+                    document.getElementById('blood-overlay').style.opacity = '0';
+                    playSFX('heal');
+                },
+                text: `Bạn kiệt sức qua được bên kia vực thẳm, cây cầu treo đã bị cắt đứt. Khi mở mắt ra, bạn thấy mình đang nằm trong sân một ngôi đền cổ kính tĩnh lặng giữa rừng trúc.\n\nTrước mặt bạn là một kiếm sĩ mặc giáp đen bí ẩn, thanh katana tỏa ra luồng thanh khí kỳ diệu.`,
+                choices: [
+                    { text: "Ông... ông là ai? Tên đồ tể Maroa đâu rồi?", next: 13 }
+                ]
+            },
+            13: {
+                chapter: "CHƯƠNG 3: ĐẠO CỦA NINJA",
+                bg: "assets/images/backgrounds/ninja_dojo.jpeg",
+                speaker: "Ninja Đạo",
+                speakerTag: "Thủ Hộ Giả",
+                char: "assets/images/characters/ninja_Dao.webp",
+                charClass: "ninja-glow",
+                bgm: "dojo",
+                text: `Kiếm sĩ khẽ thu đao, giọng nói trầm tĩnh mà uy lực:\n\n'Ta là Ninja Đạo - người canh giữ phong ấn thiêng của khu rừng này. Tên đồ tể Maroa đã bị chặn lại ở bờ vực đá. Cậu có phản xạ sinh tồn phi thường mới trốn thoát được con dao của hắn.'`,
+                choices: [
+                    { text: "Cảm ơn ngài Đạo... Nhưng tôi vẫn cảm thấy Anderson đang rình rập...", next: 14 }
+                ]
+            },
+            14: {
+                chapter: "CHƯƠNG 3: ĐẠO CỦA NINJA",
+                bg: "assets/images/backgrounds/ninja_dojo.jpeg",
+                speaker: "Ninja Đạo",
+                speakerTag: "Truyền Dạy",
+                char: "assets/images/characters/ninja_Dao.webp",
+                charClass: "ninja-glow",
+                bgm: "dojo",
+                text: `'Linh cảm của cậu rất đúng. Anderson không phải dã thú, hắn là một thực thể bóng tối nguyền rủa đất trời. Dấu ấn máu của hắn đã khắc vào linh hồn cậu. Càng chạy trốn, cậu càng chắc chắn sẽ làm mồi cho hắn.\n\nCách duy nhất để sống sót là: ĐỨNG LÊN VÀ TIÊU DIỆT HẮN.'`,
+                choices: [
+                    { text: "Xin Ninja Đạo truyền dạy võ nghệ để tôi chiến đấu!", next: 15, ninja: true }
+                ]
+            },
+            15: {
+                chapter: "CHƯƠNG 3: ĐẠO CỦA NINJA",
+                bg: "assets/images/backgrounds/ninja_dojo.jpeg",
+                speaker: "Ninja Đạo",
+                speakerTag: "Bí Thuật",
+                char: "assets/images/characters/ninja_Dao.webp",
+                charClass: "ninja-glow",
+                bgm: "dojo",
+                text: `Ninja Đạo gật đầu, truyền cho bạn các bí kỹ cổ truyền:\n\n1. Trảm Kích: Tụ khí đánh đòn chuẩn xác, hồi phục 25 Ki.\n2. Phi Đao Hắc Ám: Ám khí tẩm độc, gây 25 sát thương và rút máu liên tục.\n3. Thân Pháp Ninja: Hóa thân vào bóng tối, giảm 60% sát thương tới và phản kích cực mạnh.\n4. Bí Thuật Long Hống: Dồn 40 Ki phóng ra kình lực rồng phá nát giáp quái vật (55-70 ST).\n5. Khí Công Hồi Xuân: Điều hòa kinh mạch hồi phục 55 HP.`,
+                choices: [
+                    { text: "Vận khí thử nghiệm và tiếp nhận Kiếm báu!", next: 16, ninja: true }
+                ]
+            },
+            16: {
+                chapter: "CHƯƠNG 3: ĐẠO CỦA NINJA",
+                bg: "assets/images/backgrounds/ninja_dojo.jpeg",
+                speaker: "Ninja Đạo",
+                speakerTag: "Xuất Trận",
+                char: "assets/images/characters/ninja_Dao.webp",
+                charClass: "ninja-glow",
+                bgm: "dojo",
+                onEnter: () => {
+                    playSFX('slash');
+                    flashScreen();
+                },
+                text: `Bạn hít sâu, một luồng nội lực cuồn cuộn dâng trào trong huyết quản. Thanh Hắc Long Kiếm trong tay bạn phát ra tiếng ngâm reo vang dội!\n\nNinja Đạo mỉm cười: 'Tốt lắm! Cậu là chiến binh thực thụ. Anderson đang đợi ở Tế Đàn Huyết Nguyệt. Hãy đi đi, và kết thúc cơn ác mộng này vĩnh viễn!'`,
+                choices: [
+                    { text: "TIẾN VÀO TẾ ĐÀN - QUYẾT TỬ VỚI ANDERSON!", next: 17, primary: true }
+                ]
+            },
+            17: {
+                chapter: "CHƯƠNG KẾT: TẾ ĐÀN HUYẾT NGUYỆT",
+                bg: "assets/images/backgrounds/boss_altar.jpg",
+                speaker: "Anderson",
+                speakerTag: "Ác Thể Cổ Đại",
+                char: "assets/images/characters/anderson_char.webp",
+                charClass: "angry-glow",
+                bgm: "boss",
+                onEnter: () => {
+                    flashScreen();
+                    triggerShake(800);
+                    playSFX('screech');
+                },
+                text: `Ánh trăng đỏ lòm chiếu rọi xuống đống hài cốt tại Tế Đàn Cổ.\n\nAnderson đứng sừng sững giữa làn sương lạnh buốt. Đôi mắt quỷ rực lửa quét qua bạn, giọng cười the thé rợn người vang vọng:\n\n'Khà khà khà... Xem ai mò tới đây này! Kẻ hèn nhát từng run rẩy cầu xin ta tha mạng trong khu rừng đêm ấy... Cậu không bỏ trốn mà lại tự dâng mình vào miệng ta sao?'`,
+                choices: [
+                    { text: "Tôi không còn là con mồi yếu đuối của ông nữa, Anderson!", next: 18 },
+                    { text: "Thanh Hắc Long Kiếm này sẽ kết thúc sự tàn bạo của ông!", next: 19 }
+                ]
+            },
+            18: {
+                chapter: "CHƯƠNG KẾT: TẾ ĐÀN HUYẾT NGUYỆT",
+                bg: "assets/images/backgrounds/boss_altar.jpg",
+                speaker: "Anderson",
+                speakerTag: "Ác Thể Cổ Đại",
+                char: "assets/images/characters/anderson_char.webp",
+                charClass: "angry-glow",
+                bgm: "boss",
+                text: `Anderson khẽ nhếch mép, để lộ hàm răng sắc nhọn gỉ máu:\n\n'Ồ? Đôi mắt không còn vẻ sợ hãi nữa nhỉ? Làn chân khí đó... và thanh đao kia... Hóa ra tên tàn dư Ninja Đạo đã nhúng tay vào. Ngươi tưởng mượn chút thuật tầm thường là có thể chống lại ác quỷ bất tử của khu rừng này sao?!'`,
+                choices: [
+                    { text: "Hãy nếm thử bí thuật Long Hống của Ninja Đạo!", next: 20 },
+                    { text: "Maroa đã phải bỏ chạy, và giờ đến lượt ông đền tội!", next: 21 }
+                ]
+            },
+            19: {
+                chapter: "CHƯƠNG KẾT: TẾ ĐÀN HUYẾT NGUYỆT",
+                bg: "assets/images/backgrounds/boss_altar.jpg",
+                speaker: "Anderson",
+                speakerTag: "Ác Thể Cổ Đại",
+                char: "assets/images/characters/anderson_char.webp",
+                charClass: "angry-glow",
+                bgm: "boss",
+                text: `Anderson gầm lên một tiếng vang động cả ngọn núi đá:\n\n'Hắc Long Kiếm? Hàng trăm năm trước, chủ nhân thanh kiếm đó đã ngã gục dưới móng vuốt của ta tại chính tế đàn này! Thịt của tên kiếm sĩ ấy rất dai... Liệu thịt của ngươi có ngon hơn không?!'`,
+                choices: [
+                    { text: "Hôm nay ta sẽ đòi lại món nợ máu cho ngài ấy!", next: 20 },
+                    { text: "Bớt nói nhảm và rút vuốt ra đi!", next: 21 }
+                ]
+            },
+            20: {
+                chapter: "CHƯƠNG KẾT: TẾ ĐÀN HUYẾT NGUYỆT",
+                bg: "assets/images/backgrounds/boss_altar.jpg",
+                speaker: "Anderson",
+                speakerTag: "Ác Thể Cuồng Nộ",
+                char: "assets/images/characters/anderson_char.webp",
+                charClass: "angry-glow",
+                bgm: "boss",
+                onEnter: () => {
+                    flashScreen();
+                    triggerShake(1000);
+                    playSFX('anderson_roar');
+                },
+                text: `Bạn tuốt kiếm khỏi vỏ, lưỡi kiếm lóe lên luồng thanh khí xanh biếc rực rỡ cắt đứt màn sương đêm u tối!\n\nAnderson giương đôi vuốt sắc nhọn, huyết khí bao phủ toàn thân: 'Được lắm! Hãy giãy giụa hết sức đi! Ta sẽ nghiền nát ngươi cùng thanh kiếm phế phẩm đó thành tro bụi!'`,
+                choices: [
+                    { text: "XÔNG LÊN! QUYẾT CHIẾN SỐNG CÒN VỚI ANDERSON!", next: "start_boss_battle", primary: true }
+                ]
+            },
+            21: {
+                chapter: "CHƯƠNG KẾT: TẾ ĐÀN HUYẾT NGUYỆT",
+                bg: "assets/images/backgrounds/boss_altar.jpg",
+                speaker: "Anderson",
+                speakerTag: "Ác Thể Cuồng Nộ",
+                char: "assets/images/characters/anderson_char.webp",
+                charClass: "angry-glow",
+                bgm: "boss",
+                onEnter: () => {
+                    flashScreen();
+                    triggerShake(1000);
+                    playSFX('screech');
+                },
+                text: `Anderson gầm lên điên cuồng, cơ bắp cuồn cuộn phồng to, móng vuốt cào rách toác mặt đất đá:\n\n'Tên nhãi ranh ngạo mạn! Ta sẽ xé toang lồng ngực ngươi, móc trái tim còn đập uống cạn từng giọt máu nóng! ĐÊM NAY NGƯƠI PHẢI CHẾT KHÔNG TOÀN THÂY!'`,
+                choices: [
+                    { text: "RÚT KIẾM! TRẢM QUỶ BẢO VỆ KHU RỪNG!", next: "start_boss_battle", primary: true }
+                ]
+            },
+            22: {
+                chapter: "HẬU CHIẾN: TẾ ĐÀN HUYẾT NGUYỆT",
+                bg: "assets/images/backgrounds/boss_altar.jpg",
+                speaker: "Anderson",
+                speakerTag: "Bại Trận",
+                char: "assets/images/characters/anderson_char.webp",
+                charClass: "angry-glow",
+                bgm: "victory",
+                onEnter: () => {
+                    playSFX('hit');
+                    flashScreen();
+                    triggerShake(600);
+                },
+                text: `Thanh Hắc Long Kiếm chém ngọt qua luồng tà khí hộ thể. Máu đen túa ra sàn tế đàn cổ.\n\nAnderson lảo đảo rồi quỵ ngã xuống nền đá lạnh, hai tay ôm vết thương đang rực sáng chân khí rồng. Ánh đỏ man dại trong mắt hắn dần tắt lịm, giọng the thé gãy vụn trong sự bàng hoàng:\n\n'Khục... khụ... Không thể nào... Ta... chúa tể bóng tối của khu rừng này... lại có thể bại trận dưới tay... một kẻ phàm trần... như ngươi ư?!'`,
+                choices: [
+                    { text: "Sức mạnh từ sự tàn độc của ngươi chưa bao giờ là bất khả chiến bại, Anderson.", next: 23, primary: true },
+                    { text: "Ngươi đã tước đoạt sinh mạng của biết bao người vô tội. Đây là kết cục xứng đáng!", next: 23 }
+                ]
+            },
+            23: {
+                chapter: "HẬU CHIẾN: TẾ ĐÀN HUYẾT NGUYỆT",
+                bg: "assets/images/backgrounds/boss_altar.jpg",
+                speaker: "Anderson",
+                speakerTag: "Hối Hận & Bi Ai",
+                char: "assets/images/characters/anderson_char.webp",
+                charClass: "fading-glow",
+                bgm: "victory",
+                text: `Anderson khẽ nhếch môi, nhưng nụ cười không còn vẻ ngông cuồng ác độc mà nhuốm màu cay đắng, đáng thương. Những vết nứt phát sáng lan dần khắp cơ thể hắn:\n\n'Kết cục... sao? Ha... ha... Hóa ra hàng trăm năm qua... ta cũng chỉ là một kẻ đáng thương bị đày đọa trong khu rừng nguyền rủa này... Ta giết chóc... ta săn lùng... chỉ để trốn chạy nỗi cô độc lạnh lẽo trong bóng đêm...'\n\nTừng mảnh tro tàn từ từ tách rời khỏi da thịt hắn, bay lơ lửng vào hư không:\n\n'Nếu như năm xưa... ta không lạc bước vào tà đạo... ta đã có thể có một kiếp người bình dị... Kiếm sĩ trẻ... ngươi... thật may mắn...'`,
+                choices: [
+                    { text: "Mọi hận thù và nguyền rủa hãy kết thúc tại đây. Hãy yên nghỉ đi, Anderson.", next: 24, primary: true },
+                    { text: "Cơn ác mộng đã hết rồi. Bóng tối sẽ không còn giam cầm linh hồn ngươi nữa.", next: 24 }
+                ]
+            },
+            24: {
+                chapter: "HẬU CHIẾN: TẾ ĐÀN HUYẾT NGUYỆT",
+                bg: "assets/images/backgrounds/boss_altar.jpg",
+                speaker: "Người Dẫn Chuyện",
+                char: "",
+                bgm: "victory",
+                onEnter: () => {
+                    flashScreen();
+                    triggerShake(800);
+                    playSFX('annihilation');
+                },
+                text: `Thân thể khổng lồ của Anderson vỡ òa thành muôn vàn đốm tàn tro lấp lánh như bụi sao, tan biến hoàn toàn theo cơn gió đêm. Tiếng gầm thét ma quỷ suốt hàng thế kỷ vĩnh viễn lặng câm, chỉ còn lại sự thinh lặng đầy xót xa.\n\nBầu trời đỏ quạch dần chuyển sang sắc lam dịu của rạng đông. Làn sương độc tan biến, để lại tiếng lá xào xạc thanh bình.\n\nLộp cộp... Tiếng bước chân nhẹ như lá rơi vang lên từ phía sau lưng bạn.`,
+                choices: [
+                    { text: "Quay đầu lại nhìn xem ai đang đến...", next: 25, primary: true },
+                    { text: "Tra Hắc Long Kiếm vào vỏ, hướng mắt về phía người đến...", next: 25, ninja: true }
+                ]
+            },
+            25: {
+                chapter: "HẬU CHIẾN: SỰ CÔNG NHẬN",
+                bg: "assets/images/backgrounds/boss_altar.jpg",
+                speaker: "Ninja Đạo",
+                speakerTag: "Thủ Hộ Giả",
+                char: "assets/images/characters/ninja_Dao.webp",
+                charClass: "ninja-glow",
+                bgm: "victory",
+                text: `Ninja Đạo thong thả bước ra từ lùm trúc, tà áo đen khẽ lay động trong gió sớm. Trên khuôn mặt lạnh lùng thường thấy nay nở một nụ cười ấm áp đầy vẻ tự hào:\n\n'Làm tốt lắm, đệ tử chân truyền của ta! Cậu đã làm được điều phi thường: vượt qua nỗi sợ tột cùng, đánh bại ác quỷ Anderson và thanh tẩy Tế Đàn Huyết Nguyệt!'`,
+                choices: [
+                    { text: "Tất cả là nhờ sự chỉ dẫn và bí thuật tuyệt luân của ngài, thưa Sư phụ Đạo!", next: 26, ninja: true },
+                    { text: "Anderson lúc tan biến trông thật đáng thương. Ông ấy rốt cuộc cũng đã được giải thoát.", next: 26 }
+                ]
+            },
+            26: {
+                chapter: "HẬU CHIẾN: VINH DANH CHIẾN BINH",
+                bg: "assets/images/backgrounds/boss_altar.jpg",
+                speaker: "Ninja Đạo",
+                speakerTag: "Vinh Danh",
+                char: "assets/images/characters/ninja_Dao.webp",
+                charClass: "ninja-glow",
+                bgm: "victory",
+                text: `Ninja Đạo gật đầu tán thưởng, đặt tay lên vai bạn với ánh mắt rạng ngời niềm tin tưởng:\n\n'Một chiến binh chân chính không chỉ biết vung kiếm đoạt mạng, mà còn có một trái tim biết thấu hiểu và trắc ẩn. Cậu không chỉ cứu lấy khu rừng mà còn giải thoát cho linh hồn tội nghiệp của Anderson.\n\nThanh Hắc Long Kiếm đã tìm được vị chủ nhân xứng đáng nhất. Kể từ nay, danh hiệu ĐẠI CHIẾN BINH BÓNG TỐI chính thức thuộc về cậu!'`,
+                choices: [
+                    { text: "TIẾP NHẬN DANH HIỆU - KHÉP LẠI HÀNH TRÌNH!", next: "ending_victory", primary: true, ninja: true }
+                ]
             }
         };
 
         let isTyping = false;
-        let typeTimeout;
+        let typeTimeout = null;
 
-        function typeWriter(text, elementId, speed = 40) {
+        function typeWriter(text, elementId, speed = 25) {
             return new Promise(resolve => {
                 const element = document.getElementById(elementId);
                 element.innerHTML = '';
@@ -293,92 +2094,1307 @@
             });
         }
 
-        async function renderNode(nodeId) {
-            const node = storyNodes[nodeId];
-            const choicesContainer = document.getElementById('choices-container');
-            choicesContainer.innerHTML = ''; // Clear old choices
+        function flashScreen() {
+            const flash = document.getElementById('flash-overlay');
+            flash.style.opacity = '0.85';
+            setTimeout(() => { flash.style.opacity = '0'; }, 100);
+        }
 
-            if (node.ending) {
-                await typeWriter(node.text, 'dialogue-text');
-                handleEnding(node.ending);
+        function triggerShake(duration = 500) {
+            document.body.classList.add('shake');
+            setTimeout(() => {
+                document.body.classList.remove('shake');
+            }, duration);
+        }
+
+        let currentChapter = { type: 'node', id: 0 };
+
+        function updateChapterCheckpoint(nodeId) {
+            if (typeof nodeId === 'number') {
+                if (nodeId < 7) {
+                    currentChapter = { type: 'node', id: 0 };
+                } else if (nodeId >= 7 && nodeId < 12) {
+                    currentChapter = { type: 'node', id: 7 };
+                } else if (nodeId >= 12 && nodeId < 17) {
+                    currentChapter = { type: 'node', id: 12 };
+                } else if (nodeId >= 17) {
+                    currentChapter = { type: 'node', id: 17 };
+                }
+            }
+        }
+
+        function restartCurrentChapter() {
+            initSFX();
+            const screen = document.getElementById('ending-screen');
+            screen.style.opacity = '0';
+            screen.style.pointerEvents = 'none';
+            document.getElementById('blood-overlay').style.opacity = '0';
+            document.body.classList.remove('shake');
+
+            const charImg = document.getElementById('character');
+            charImg.src = '';
+            charImg.style.display = 'none';
+            charImg.style.opacity = '0';
+            charImg.classList.add('hidden');
+
+            if (currentChapter.type === 'node') {
+                document.getElementById('chase-screen').style.display = 'none';
+                document.getElementById('battle-screen').style.display = 'none';
+                document.getElementById('ui-layer').style.display = 'block';
+                renderNode(currentChapter.id);
+            } else if (currentChapter.type === 'chase') {
+                startPlatformerChase();
+            } else if (currentChapter.type === 'boss') {
+                startBossBattle();
+            }
+        }
+
+        async function renderNode(nodeId) {
+            clearTimeout(typeTimeout);
+            
+            if (nodeId === 'ending_anderson_bad') {
+                handleAndersonBadEnding();
+                return;
+            }
+            if (nodeId === 'ending_sleep') {
+                handleSleepEnding();
+                return;
+            }
+            if (nodeId === 'ending_victory') {
+                handleVictoryEnding();
+                return;
+            }
+            if (nodeId === 'start_chase') {
+                startPlatformerChase();
+                return;
+            }
+            if (nodeId === 'start_boss_battle') {
+                startBossBattle();
                 return;
             }
 
+            updateChapterCheckpoint(nodeId);
+
+            const node = storyNodes[nodeId];
+            if (!node) return;
+
+            document.getElementById('chapter-badge').innerText = node.chapter;
+
+            const bg = document.getElementById('background');
+            if (node.bg) {
+                bg.style.backgroundImage = `url('${node.bg}')`;
+            }
+
+            const charImg = document.getElementById('character');
+            charImg.className = '';
+            if (node.char) {
+                charImg.src = node.char;
+                charImg.style.display = 'block';
+                charImg.style.opacity = '1';
+                if (node.charClass) charImg.classList.add(node.charClass);
+            } else {
+                charImg.src = '';
+                charImg.style.display = 'none';
+                charImg.style.opacity = '0';
+                charImg.classList.add('hidden');
+            }
+
+            const speakerName = document.getElementById('speaker-name');
+            speakerName.innerText = node.speaker;
+            speakerName.className = (node.speaker === 'Ninja Đạo') ? 'ninja-name' : '';
+            const speakerTagElem = document.getElementById('speaker-tag');
+            if (node.speaker === 'Người Dẫn Chuyện' || !node.speakerTag) {
+                speakerTagElem.innerText = '';
+                speakerTagElem.style.display = 'none';
+            } else {
+                speakerTagElem.innerText = node.speakerTag;
+                speakerTagElem.style.display = 'inline-block';
+            }
+
+            if (node.bgm && node.bgm !== currentBGMType) {
+                playBGM(node.bgm);
+            }
+
+            if (node.onEnter) {
+                node.onEnter();
+            }
+
+            const choicesContainer = document.getElementById('choices-container');
+            choicesContainer.innerHTML = '';
             await typeWriter(node.text, 'dialogue-text');
 
             node.choices.forEach(choice => {
-                const button = document.createElement('button');
-                button.className = 'choice-btn';
-                button.innerText = choice.text;
-                button.onclick = () => {
-                    if(!isTyping) {
-                        renderNode(choice.next);
-                    }
+                const btn = document.createElement('button');
+                btn.className = 'choice-btn';
+                if (choice.primary) btn.classList.add('primary-action');
+                if (choice.ninja) btn.classList.add('ninja-action');
+                btn.innerText = choice.text;
+                btn.onclick = () => {
+                    initSFX();
+                    renderNode(choice.next);
                 };
-                choicesContainer.appendChild(button);
+                choicesContainer.appendChild(btn);
             });
         }
 
-        function handleEnding(type) {
+                function handleAndersonBadEnding() {
+            document.getElementById('ui-layer').style.display = 'none';
+            const charImg = document.getElementById('character');
+            charImg.src = '';
+            charImg.style.display = 'none';
+            charImg.style.opacity = '0';
+            charImg.classList.add('hidden');
+
+            playSFX('screech');
+            flashScreen();
+            triggerShake(1200);
             const bg = document.getElementById('background');
             const blood = document.getElementById('blood-overlay');
-            const character = document.getElementById('character');
-            const endingScreen = document.getElementById('ending-screen');
-            const endingText = document.getElementById('ending-text');
-            const uiLayer = document.getElementById('ui-layer');
+            bg.style.backgroundImage = "url('assets/images/backgrounds/meat_bg.webp')";
+            blood.style.opacity = '1';
 
-            uiLayer.style.display = 'none';
+            showEndingScreen(
+                "BẠN ĐÃ TRỞ THÀNH BỮA TỐI",
+                "Một lựa chọn ngu ngốc... Anderson lao tới xé xác bạn trong màn đêm lạnh lẽo. Bạn đã không thể sống sót để gặp được bất kỳ ai cứu giúp.",
+                [
+                    { text: "Bắt Đầu Lại Đầu Chương", action: restartCurrentChapter },
+                    { text: "Chơi Lại Từ Đầu", action: startGame }
+                ]
+            );
+        }
+
+        function handleSleepEnding() {
+            document.getElementById('ui-layer').style.display = 'none';
+            document.getElementById('character').classList.add('hidden');
+            const bg = document.getElementById('background');
+            const blood = document.getElementById('blood-overlay');
+            
+            playSFX('screech');
+            flashScreen();
+            triggerShake(600);
+            bg.style.backgroundImage = "url('assets/images/backgrounds/meat_bg.webp')";
+            blood.style.opacity = '0.9';
+
+            showEndingScreen(
+                "BẠN ĐÃ TRỞ THÀNH BỮA TỐI",
+                "Trong cơn mê mệt vì kiệt sức, bạn không hề biết rằng con dao phay của Maroa đã vung lên... Bạn bị chặt thành từng mảnh và trở thành món canh thịt trong chiếc vạc sôi sùng sục của gã đồ tể.",
+                [
+                    { text: "Bắt Đầu Lại Đầu Chương", action: restartCurrentChapter },
+                    { text: "Chơi Lại Từ Đầu", action: startGame }
+                ]
+            );
+        }
+
+        function showEndingScreen(title, description, buttons, isVictory = false) {
+            if (!isVictory) {
+                playBGM('death');
+            }
+            const screen = document.getElementById('ending-screen');
+            const titleElem = document.getElementById('ending-title');
+            const descElem = document.getElementById('ending-description');
+            const btnGroup = document.getElementById('ending-buttons');
+
+            titleElem.innerText = title;
+            titleElem.style.color = isVictory ? '#00e5ff' : '#ff1111';
+            titleElem.style.textShadow = isVictory ? '0 0 25px #00e5ff, 2px 2px 8px #000' : '0 0 25px #ff0000, 2px 2px 8px #000';
+            
+            descElem.innerText = description;
+            btnGroup.innerHTML = '';
+
+            buttons.forEach(b => {
+                const btn = document.createElement('button');
+                btn.className = 'action-button primary';
+                btn.innerText = b.text;
+                btn.onclick = () => {
+                    screen.style.opacity = '0';
+                    screen.style.pointerEvents = 'none';
+                    b.action();
+                };
+                btnGroup.appendChild(btn);
+            });
+
+            screen.style.opacity = '1';
+            screen.style.pointerEvents = 'auto';
+        }
+
+        /* ==============================================================
+           CHASE MINI-GAME (3-LANE RUNNER WITH BEAR TRAP & TREE)
+           ============================================================== */
+        let chaseRunning = false;
+        let chaseAnimId = null;
+        let chasePlayerLane = 1; // 0: Left, 1: Center, 2: Right
+        let chasePlayerY = 0; // jump offset
+        let chasePlayerJumping = false;
+        let chaseJumpVelocity = 0;
+        let chaseDistance = 100; // meters to escape
+        let chaseMaroaDist = 25; // meters behind
+        let chaseObstacles = [];
+        let chaseLastSpawn = 0;
+        let chaseSpeed = 1.0;
+
+        // Image assets for chase
+        const bearTrapImg = new Image();
+        bearTrapImg.src = 'assets/images/hazards/bear_trap.png';
+        const treeImg = new Image();
+        treeImg.src = 'assets/images/hazards/tree.png';
+
+        function startPlatformerChase() {
+            currentChapter = { type: 'chase' };
+            document.getElementById('ui-layer').style.display = 'none';
+            const charImg = document.getElementById('character');
+            charImg.src = '';
+            charImg.style.display = 'none';
+            charImg.style.opacity = '0';
+            charImg.classList.add('hidden');
+
+            document.getElementById('chase-screen').style.display = 'flex';
+            document.getElementById('chapter-badge').innerText = "MÀN RƯỢT ĐUỔI: TRỐN CHẠY ĐỒ TỂ MAROA";
+            
+            // Background is darkforest_bg.jpg as requested
+            document.getElementById('background').style.backgroundImage = "url('assets/images/backgrounds/darkforest_bg.jpg')";
+            document.getElementById('blood-overlay').style.opacity = '0';
+            document.body.classList.remove('shake');
+
+            playBGM('chase');
+
+            // Reset state
+            chaseRunning = true;
+            chasePlayerLane = 1;
+            chasePlayerY = 0;
+            chasePlayerJumping = false;
+            chaseJumpVelocity = 0;
+            chaseDistance = 100;
+            chaseMaroaDist = 25;
+            chaseObstacles = [];
+            chaseLastSpawn = Date.now();
+            chaseSpeed = 1.0;
+
+            initChaseCanvas();
+            bindChaseControls();
+            chaseLoop();
+        }
+
+        function initChaseCanvas() {
+            const canvas = document.getElementById('chase-canvas');
+            canvas.width = canvas.clientWidth;
+            canvas.height = canvas.clientHeight;
+        }
+
+        window.addEventListener('resize', () => {
+            if (chaseRunning) initChaseCanvas();
+        });
+
+        function bindChaseControls() {
+            const leftBtn = document.getElementById('chase-left-btn');
+            const rightBtn = document.getElementById('chase-right-btn');
+            const jumpBtn = document.getElementById('chase-jump-btn');
+
+            leftBtn.ontouchstart = (e) => { e.preventDefault(); chaseMoveLeft(); };
+            leftBtn.onclick = () => chaseMoveLeft();
+
+            rightBtn.ontouchstart = (e) => { e.preventDefault(); chaseMoveRight(); };
+            rightBtn.onclick = () => chaseMoveRight();
+
+            jumpBtn.ontouchstart = (e) => { e.preventDefault(); chaseJump(); };
+            jumpBtn.onclick = () => chaseJump();
+
+            window.onkeydown = (e) => {
+                if (!chaseRunning) return;
+                if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
+                    chaseMoveLeft();
+                } else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
+                    chaseMoveRight();
+                } else if (e.key === 'ArrowUp' || e.key === ' ' || e.key === 'w' || e.key === 'W') {
+                    chaseJump();
+                }
+            };
+        }
+
+        function chaseMoveLeft() {
+            if (chasePlayerLane > 0) {
+                chasePlayerLane--;
+                playSFX('dodge');
+            }
+        }
+
+        function chaseMoveRight() {
+            if (chasePlayerLane < 2) {
+                chasePlayerLane++;
+                playSFX('dodge');
+            }
+        }
+
+        function chaseJump() {
+            if (!chasePlayerJumping) {
+                chasePlayerJumping = true;
+                chaseJumpVelocity = 14;
+                playSFX('jump');
+            }
+        }
+
+        function chaseLoop() {
+            if (!chaseRunning) return;
+
+            const canvas = document.getElementById('chase-canvas');
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+
+            ctx.clearRect(0, 0, width, height);
+
+            // Distance progression
+            chaseDistance -= 0.13 * chaseSpeed;
+            if (chaseDistance <= 0) chaseDistance = 0;
+
+            // Maroa pressure
+            chaseMaroaDist -= 0.015;
+
+            // Jump physics
+            if (chasePlayerJumping) {
+                chasePlayerY += chaseJumpVelocity;
+                chaseJumpVelocity -= 0.9;
+                if (chasePlayerY <= 0) {
+                    chasePlayerY = 0;
+                    chasePlayerJumping = false;
+                }
+            }
+
+            // Track geometry
+            const horizonY = height * 0.36;
+            const bottomY = height * 0.88;
+            const laneBottomWidth = Math.min(width * 0.28, 140);
+            const centerBottomX = width / 2;
+
+            // Spawn obstacles (bear_trap and tree)
+            const now = Date.now();
+            if (now - chaseLastSpawn > 1150 && chaseDistance > 8) {
+                const lane = Math.floor(Math.random() * 3);
+                const type = Math.random() < 0.5 ? 'tree' : 'bear_trap';
+                chaseObstacles.push({
+                    lane: lane,
+                    y: 0,
+                    type: type,
+                    speed: 6.2
+                });
+                chaseLastSpawn = now;
+            }
+
+            // Draw Perspective Track Guide Lines
+            ctx.save();
+            ctx.strokeStyle = "rgba(180, 50, 50, 0.4)";
+            ctx.lineWidth = 3;
+            for (let i = -1.5; i <= 1.5; i += 1.0) {
+                ctx.beginPath();
+                ctx.moveTo(width / 2 + i * 35, horizonY);
+                ctx.lineTo(centerBottomX + i * laneBottomWidth, bottomY);
+                ctx.stroke();
+            }
+            ctx.restore();
+
+            // Draw Obstacles (with sprites)
+            for (let i = chaseObstacles.length - 1; i >= 0; i--) {
+                const obs = chaseObstacles[i];
+                obs.y += obs.speed;
+                const progress = obs.y / (bottomY - horizonY);
+
+                if (progress >= 0 && progress <= 1.1) {
+                    const currentY = horizonY + obs.y;
+                    const laneSpread = 35 + (laneBottomWidth - 35) * progress;
+                    const laneOffset = (obs.lane - 1);
+                    const currentX = (width / 2) + laneOffset * laneSpread;
+
+                    ctx.save();
+                    if (obs.type === 'tree') {
+                        // Tree obstacle
+                        const w = 25 + progress * 75;
+                        const h = w * (1083 / 600) * 0.9;
+                        if (treeImg.complete && treeImg.naturalWidth !== 0) {
+                            ctx.drawImage(treeImg, currentX - w / 2, currentY - h + 15, w, h);
+                        } else {
+                            ctx.fillStyle = "#5c3a21";
+                            ctx.fillRect(currentX - w * 0.5, currentY - 20, w, 20);
+                        }
+                    } else {
+                        // Bear trap obstacle
+                        const w = 30 + progress * 65;
+                        const h = w * (572 / 860);
+                        if (bearTrapImg.complete && bearTrapImg.naturalWidth !== 0) {
+                            ctx.drawImage(bearTrapImg, currentX - w / 2, currentY - h / 2, w, h);
+                        } else {
+                            ctx.fillStyle = "#8a0303";
+                            ctx.beginPath();
+                            ctx.arc(currentX, currentY, w * 0.4, 0, Math.PI * 2);
+                            ctx.fill();
+                        }
+                    }
+                    ctx.restore();
+
+                    // Collision check
+                    if (progress > 0.85 && progress < 1.02) {
+                        if (obs.lane === chasePlayerLane) {
+                            // Tree can be jumped
+                            if (obs.type === 'tree' && chasePlayerY > 28) {
+                                // Jumped safely over tree!
+                            } else if (obs.type === 'bear_trap' && chasePlayerY > 35) {
+                                // Jumped safely over bear trap!
+                            } else {
+                                // Hit obstacle!
+                                chaseObstacles.splice(i, 1);
+                                handleChaseHit();
+                                continue;
+                            }
+                        }
+                    }
+                }
+
+                if (obs.y > (bottomY - horizonY) * 1.2) {
+                    chaseObstacles.splice(i, 1);
+                }
+            }
+
+            // Draw Player Runner Silhouette
+            const playerLaneOffset = (chasePlayerLane - 1);
+            const playerX = centerBottomX + playerLaneOffset * laneBottomWidth;
+            const playerY = bottomY - 20 - chasePlayerY;
+
+            ctx.save();
+            ctx.shadowColor = "#00d2ff";
+            ctx.shadowBlur = 20;
+
+            // Player body
+            ctx.fillStyle = "#00d2ff";
+            ctx.beginPath();
+            ctx.arc(playerX, playerY - 35, 14, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.lineWidth = 6;
+            ctx.strokeStyle = "#00d2ff";
+            ctx.lineCap = "round";
+            ctx.beginPath();
+            ctx.moveTo(playerX, playerY - 22);
+            ctx.lineTo(playerX, playerY + 8);
+            ctx.stroke();
+
+            const legSwing = Math.sin(Date.now() * 0.02) * 15;
+            ctx.beginPath();
+            ctx.moveTo(playerX, playerY + 8);
+            ctx.lineTo(playerX - 10 + (chasePlayerJumping ? -10 : legSwing), playerY + 30);
+            ctx.moveTo(playerX, playerY + 8);
+            ctx.lineTo(playerX + 10 - (chasePlayerJumping ? -10 : legSwing), playerY + 30);
+            ctx.stroke();
+            ctx.restore();
+
+            // Menacing Maroa red eyes / aura behind when near
+            if (chaseMaroaDist < 20) {
+                const maroaOpacity = (20 - chaseMaroaDist) / 20;
+                ctx.save();
+                ctx.fillStyle = `rgba(180, 0, 0, ${maroaOpacity * 0.35})`;
+                ctx.fillRect(0, 0, width, height);
+
+                const eyePulse = Math.sin(Date.now() * 0.015);
+                ctx.fillStyle = "#ff0000";
+                ctx.shadowColor = "#ff0000";
+                ctx.shadowBlur = 25;
+                ctx.beginPath();
+                ctx.arc(width / 2 - 40, height * 0.28, 6 + eyePulse * 2, 0, Math.PI * 2);
+                ctx.arc(width / 2 + 40, height * 0.28, 6 + eyePulse * 2, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+
+            // Update HUD
+            const distPercent = Math.max(0, Math.min(100, 100 - chaseDistance));
+            document.getElementById('distance-fill').style.width = distPercent + '%';
+            document.getElementById('distance-text').innerText = Math.round(chaseDistance) + 'm';
+
+            const dangerPercent = Math.max(0, Math.min(100, (30 - chaseMaroaDist) / 30 * 100));
+            document.getElementById('danger-fill').style.width = dangerPercent + '%';
+            document.getElementById('danger-text').innerText = Math.max(0, Math.round(chaseMaroaDist)) + 'm';
+
+            // Win Condition
+            if (chaseDistance <= 0) {
+                chaseRunning = false;
+                cancelAnimationFrame(chaseAnimId);
+                handleChaseSuccess();
+                return;
+            }
+
+            // Lose Condition
+            if (chaseMaroaDist <= 0) {
+                chaseRunning = false;
+                cancelAnimationFrame(chaseAnimId);
+                handleChaseCaught("Maroa đã đuổi kịp bạn và vung con dao phay kinh hoàng!");
+                return;
+            }
+
+            chaseAnimId = requestAnimationFrame(chaseLoop);
+        }
+
+        function handleChaseHit() {
+            chaseMaroaDist -= 6;
+            flashScreen();
+            triggerShake(400);
+            playSFX('hit');
+        }
+
+        function handleChaseCaught(reason) {
+            chaseRunning = false;
+            cancelAnimationFrame(chaseAnimId);
+
+            document.getElementById('chase-screen').style.display = 'none';
+            const charImg = document.getElementById('character');
+            charImg.src = '';
+            charImg.style.display = 'none';
+            charImg.style.opacity = '0';
+            charImg.classList.add('hidden');
+
+            flashScreen();
+            triggerShake(1000);
+            playSFX('screech');
+
+            const bg = document.getElementById('background');
+            const blood = document.getElementById('blood-overlay');
+            bg.style.backgroundImage = "url('assets/images/backgrounds/meat_bg.webp')";
+            blood.style.opacity = '1';
+
+            showEndingScreen(
+                "BỊ MAROA BẮT ĐƯỢC!",
+                reason || "Bước chân chậm trễ khiến bạn bị gã đồ tể tóm gọn. Lưỡi dao phay cắm phập xuống lưng bạn giữa đêm lạnh giá.",
+                [
+                    { text: "Bắt Đầu Lại Đầu Chương", action: restartCurrentChapter },
+                    { text: "Chơi Lại Từ Đầu", action: startGame }
+                ]
+            );
+        }
+
+        function handleChaseSuccess() {
+            chaseRunning = false;
+            cancelAnimationFrame(chaseAnimId);
+
+            document.getElementById('chase-screen').style.display = 'none';
+            playSFX('dodge');
+            flashScreen();
+            triggerShake(600);
+
+            document.getElementById('ui-layer').style.display = 'block';
+            renderNode(12);
+        }
+
+        /* ==============================================================
+           FINAL SHOWDOWN: TURN-BASED COMBAT WITH ANDERSON
+           ============================================================== */
+        let battleState = {
+            playerHP: 120,
+            playerMaxHP: 120,
+            playerKi: 100,
+            playerMaxKi: 100,
+            bossHP: 350,
+            bossMaxHP: 350,
+            isDodging: false,
+            bleedTurns: 0,
+            isBossEnraged: false,
+            turnInProgress: false,
+            bossChargingUltimate: false,
+            hasUsedUltimate: false
+        };
+
+        let bossSpeechTimeout = null;
+        function showBossSpeech(speaker, tag, text, duration = 5200) {
+            return new Promise(resolve => {
+                clearTimeout(bossSpeechTimeout);
+                const bubble = document.getElementById('boss-speech-bubble');
+                const nameElem = document.getElementById('boss-speech-name');
+                const tagElem = document.getElementById('boss-speech-tag');
+                const textElem = document.getElementById('boss-speech-text');
+
+                if (!bubble || !nameElem || !textElem) {
+                    setTimeout(resolve, duration);
+                    return;
+                }
+
+                nameElem.innerText = speaker;
+                tagElem.innerText = tag;
+                textElem.innerHTML = '';
+                bubble.classList.add('active');
+
+                let i = 0;
+                const speed = 25;
+                function type() {
+                    if (i < text.length) {
+                        textElem.innerHTML += text.charAt(i);
+                        i++;
+                        setTimeout(type, speed);
+                    }
+                }
+                type();
+
+                bossSpeechTimeout = setTimeout(() => {
+                    bubble.classList.remove('active');
+                    setTimeout(resolve, 300);
+                }, duration);
+            });
+        }
+
+        function hideBossSpeech() {
+            clearTimeout(bossSpeechTimeout);
+            const bubble = document.getElementById('boss-speech-bubble');
+            if (bubble) bubble.classList.remove('active');
+        }
+
+        function setPlayerMovesPhase(isPhase2) {
+            const skillsGrid = document.getElementById('skills-grid');
+            const banner = document.getElementById('phase2-moves-banner');
+            if (!skillsGrid) return;
+
+            const moves = {
+                slash: {
+                    btn: document.getElementById('skill-slash-btn'),
+                    p1: { name: "Trảm Kích", desc: "Chém cơ bản. Hồi +25 Ki.", cost: "+25 Ki | 18-24 ST", cls: "slash-phase2" },
+                    p2: { name: "⚡ Hắc Long Trảm", desc: "Kiếm khí cuồng nộ rạch phá hư không. Hồi +25 Ki.", cost: "+25 Ki | 18-24 ST", cls: "slash-phase2" }
+                },
+                kunai: {
+                    btn: document.getElementById('skill-kunai-btn'),
+                    p1: { name: "Phi Đao Hắc Ám", desc: "Gây xuất huyết 2 lượt.", cost: "20 Ki | 25 ST + Độc", cls: "kunai-phase2" },
+                    p2: { name: "🗡️ U Hồn Ám Khí", desc: "Ám khí tẩm huyết độc xuyên tâm xé rách ma thể.", cost: "20 Ki | 25 ST + Huyết Độc", cls: "kunai-phase2" }
+                },
+                dodge: {
+                    btn: document.getElementById('skill-dodge-btn'),
+                    p1: { name: "Thân Pháp Ninja", desc: "Giảm 60% sát thương và phản đòn.", cost: "20 Ki | Phản Đòn", cls: "dodge-phase2" },
+                    p2: { name: "💨 Huyễn Ảnh Vô Cực", desc: "Phân thân hư không né 60% ST & phản kích sấm sét.", cost: "20 Ki | Phản Kích Cực Hạn", cls: "dodge-phase2" }
+                },
+                dragon: {
+                    btn: document.getElementById('skill-dragon-btn'),
+                    p1: { name: "Long Hống Kích", desc: "Sát chiêu phá giáp cực mạnh.", cost: "40 Ki | 55-70 ST", cls: "dragon-phase2" },
+                    p2: { name: "🐉 Chân Long Diệt Quỷ", desc: "Long hồn thức tỉnh nghiền nát ma khí bạo tàn!", cost: "40 Ki | 55-70 ST", cls: "dragon-phase2" }
+                },
+                heal: {
+                    btn: document.getElementById('skill-heal-btn'),
+                    p1: { name: "Khí Công Hồi Xuân", desc: "Hồi phục sinh lực tức thì.", cost: "25 Ki | +55 HP", cls: "heal-phase2" },
+                    p2: { name: "🌿 Niết Bàn Tái Sinh", desc: "Chân khí rồng thiêng hồi phục sinh mệnh cấp tốc.", cost: "25 Ki | +55 HP", cls: "heal-phase2" }
+                }
+            };
+
+            if (isPhase2) {
+                skillsGrid.classList.add('phase2-active');
+                if (banner) banner.classList.add('active');
+
+                Object.values(moves).forEach(m => {
+                    if (m.btn) {
+                        m.btn.classList.add('phase2-btn', m.p2.cls);
+                        const nameEl = m.btn.querySelector('.skill-name');
+                        const descEl = m.btn.querySelector('.skill-desc');
+                        const costEl = m.btn.querySelector('.skill-cost');
+                        if (nameEl) nameEl.innerHTML = m.p2.name;
+                        if (descEl) descEl.innerText = m.p2.desc;
+                        if (costEl) costEl.innerText = m.p2.cost;
+                    }
+                });
+            } else {
+                skillsGrid.classList.remove('phase2-active');
+                if (banner) banner.classList.remove('active');
+
+                Object.values(moves).forEach(m => {
+                    if (m.btn) {
+                        m.btn.classList.remove('phase2-btn', m.p1.cls);
+                        const nameEl = m.btn.querySelector('.skill-name');
+                        const descEl = m.btn.querySelector('.skill-desc');
+                        const costEl = m.btn.querySelector('.skill-cost');
+                        if (nameEl) nameEl.innerHTML = m.p1.name;
+                        if (descEl) descEl.innerText = m.p1.desc;
+                        if (costEl) costEl.innerText = m.p1.cost;
+                    }
+                });
+            }
+        }
+
+        async function triggerBossEnragedSequence() {
+            battleState.isBossEnraged = true;
+            battleState.turnInProgress = true;
+            setPlayerMovesPhase(true);
+            updateBattleHUD();
+
+            flashScreen();
+            triggerShake(1200);
+            playSFX('anderson_roar');
+
+            const bossSprite = document.getElementById('battle-boss-sprite');
+            if (bossSprite) {
+                bossSprite.src = 'assets/images/characters/anderson_enraged.png';
+                bossSprite.classList.add('enraged');
+            }
+
+            const bossNameElem = document.getElementById('boss-name-label');
+            if (bossNameElem) {
+                bossNameElem.innerText = "Anderson - Hắc Lâm Tàn Sát Giả";
+            }
+            const statusTag = document.getElementById('boss-status-tag');
+            if (statusTag) {
+                statusTag.innerText = "CUỒNG NỘ";
+                statusTag.style.background = "#ff0000";
+                statusTag.style.color = "#fff";
+            }
+
+            logBattle("Anderson gầm rú man dại, ma khí cuộn trào xé rách lốt người... Hắn đã biến hình thành ANDERSON - HẮC LÂM TÀN SÁT GIẢ!", "damage");
+
+            await showBossSpeech(
+                "Anderson - Hắc Lâm Tàn Sát Giả",
+                "CUỒNG NỘ",
+                "LŨ SÂU BỌ! Ngươi nghĩ thứ kiếm pháp cỏn con đó có thể hạ được ta sao?! Tế đàn này sẽ ngập tràn huyết nhục của ngươi! HÃY CHỨNG KIẾN BẢN THỂ TÀN SÁT!",
+                5600
+            );
+
+            battleState.turnInProgress = false;
+            updateBattleHUD();
+        }
+
+        async function handlePlayerDefeatSequence() {
+            battleState.turnInProgress = true;
+            updateBattleHUD();
+
+            triggerShake(800);
+            playSFX('anderson_roar');
+
+            const bossName = battleState.isBossEnraged ? "Anderson - Hắc Lâm Tàn Sát Giả" : "Anderson";
+            logBattle(`${bossName} cười sằng sặc đắc thắng: 'Xác thịt ngươi sẽ bón cho khu rừng này!'`, "boss-act");
+
+            await showBossSpeech(
+                bossName,
+                "KẾT LIỄU",
+                "Ha ha ha ha! Chỉ có bấy nhiêu thôi sao, đệ tử của Đạo?! Xác thịt ngươi sẽ bón cho cây rừng, và linh hồn ngươi sẽ vĩnh viễn bị chôn vùi trong bóng tối!",
+                5400
+            );
+
+            handlePlayerDefeat();
+        }
+
+        function startBossBattle() {
+            currentChapter = { type: 'boss' };
+            document.getElementById('ui-layer').style.display = 'none';
+            document.getElementById('chase-screen').style.display = 'none';
+            document.getElementById('ending-screen').style.opacity = '0';
+            document.getElementById('ending-screen').style.pointerEvents = 'none';
+
+            // Hide #character (Ninja Dao / other sprites) completely
+            const charImg = document.getElementById('character');
+            charImg.src = '';
+            charImg.style.display = 'none';
+            charImg.style.opacity = '0';
+            charImg.classList.add('hidden');
+
+            // Reset blood overlay and effects on battle start / rematch
+            document.getElementById('blood-overlay').style.opacity = '0';
+            document.body.classList.remove('shake');
+
+            document.getElementById('battle-screen').style.display = 'flex';
+            document.getElementById('chapter-badge').innerText = "CHƯƠNG KẾT: QUYẾT CHIẾN ANDERSON";
+            document.getElementById('background').style.backgroundImage = "url('assets/images/backgrounds/boss_altar.jpg')";
+            
+            hideBossSpeech();
+
+            // Reset boss appearance & status tag & name
+            const bossStatusTag = document.getElementById('boss-status-tag');
+            if (bossStatusTag) {
+                bossStatusTag.innerText = "Bình Thường";
+                bossStatusTag.style.background = "rgba(255, 255, 255, 0.1)";
+                bossStatusTag.style.color = "#aaa";
+            }
+            const bossNameLabel = document.getElementById('boss-name-label');
+            if (bossNameLabel) {
+                bossNameLabel.innerText = "ANDERSON - ÁC QUỶ ĐẦM LẦY";
+            }
+            const bossSpriteElem = document.getElementById('battle-boss-sprite');
+            if (bossSpriteElem) {
+                bossSpriteElem.src = "assets/images/characters/anderson_char.webp";
+                bossSpriteElem.classList.remove('enraged');
+                bossSpriteElem.style.filter = "drop-shadow(0 0 35px rgba(255, 0, 0, 0.8))";
+            }
+
+            playBGM('boss');
+
+            battleState = {
+                playerHP: adminGodMode ? 999 : 120,
+                playerMaxHP: adminGodMode ? 999 : 120,
+                playerKi: 100,
+                playerMaxKi: 100,
+                bossHP: 350,
+                bossMaxHP: 350,
+                isDodging: false,
+                bleedTurns: 0,
+                isBossEnraged: false,
+                turnInProgress: false,
+                bossChargingUltimate: false,
+                hasUsedUltimate: false
+            };
+
+            setPlayerMovesPhase(false);
+            updateBattleHUD();
+            logBattle("Anderson gầm lên man dại: 'Tế đàn này sẽ chôn vùi ngươi cùng thanh kiếm gỉ đó!'", "damage");
+        }
+
+        function logBattle(text, type = "normal") {
+            const logBox = document.getElementById('battle-log');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.innerText = text;
+            logBox.appendChild(entry);
+            logBox.scrollTop = logBox.scrollHeight;
+        }
+
+        function updateBattleHUD() {
+            const bossPercent = Math.max(0, (battleState.bossHP / battleState.bossMaxHP) * 100);
+            document.getElementById('boss-hp-fill').style.width = bossPercent + '%';
+            document.getElementById('boss-hp-text').innerText = `${Math.max(0, battleState.bossHP)} / ${battleState.bossMaxHP} HP`;
+
+            const playerHPPercent = Math.max(0, (battleState.playerHP / battleState.playerMaxHP) * 100);
+            document.getElementById('player-hp-fill').style.width = playerHPPercent + '%';
+            document.getElementById('player-hp-text').innerText = `${Math.max(0, battleState.playerHP)} / ${battleState.playerMaxHP}`;
+
+            const playerKiPercent = Math.max(0, (battleState.playerKi / battleState.playerMaxKi) * 100);
+            document.getElementById('player-ki-fill').style.width = playerKiPercent + '%';
+            document.getElementById('player-ki-text').innerText = `${battleState.playerKi} / ${battleState.playerMaxKi}`;
+
+            if (battleState.isBossEnraged) {
+                setPlayerMovesPhase(true);
+            }
+
+            const canAct = !battleState.turnInProgress && battleState.playerHP > 0 && battleState.bossHP > 0;
+            const skillsGrid = document.getElementById('skills-grid');
+            if (skillsGrid) {
+                if (!canAct) {
+                    skillsGrid.classList.add('turn-locked');
+                } else {
+                    skillsGrid.classList.remove('turn-locked');
+                }
+            }
+
+            const slashBtn = document.getElementById('skill-slash-btn');
+            if (slashBtn) slashBtn.disabled = !canAct;
+            document.getElementById('skill-kunai-btn').disabled = !canAct || battleState.playerKi < 20;
+            document.getElementById('skill-dodge-btn').disabled = !canAct || battleState.playerKi < 20;
+            document.getElementById('skill-dragon-btn').disabled = !canAct || battleState.playerKi < 40;
+            document.getElementById('skill-heal-btn').disabled = !canAct || battleState.playerKi < 25;
+        }
+
+        function showDamageNumber(targetElem, text, color = '#ff3333') {
+            const rect = targetElem.getBoundingClientRect();
+            const dmgElem = document.createElement('div');
+            dmgElem.className = 'damage-number';
+            dmgElem.style.color = color;
+            dmgElem.innerText = text;
+            dmgElem.style.left = (rect.left + rect.width / 2 - 25) + 'px';
+            dmgElem.style.top = (rect.top + rect.height / 3) + 'px';
+            document.body.appendChild(dmgElem);
+            setTimeout(() => { dmgElem.remove(); }, 900);
+        }
+
+        async function executePlayerTurn(skillType) {
+            if (battleState.turnInProgress || battleState.playerHP <= 0 || battleState.bossHP <= 0) return;
+            battleState.turnInProgress = true;
+            updateBattleHUD();
+
+            const bossSprite = document.getElementById('battle-boss-sprite');
+
+            if (skillType === 'slash') {
+                playSFX('slash');
+                const dmg = Math.floor(Math.random() * 7) + 18;
+                battleState.bossHP -= dmg;
+                battleState.playerKi = Math.min(battleState.playerMaxKi, battleState.playerKi + 25);
+                bossSprite.classList.add('boss-hit');
+                showDamageNumber(bossSprite, `-${dmg}`, '#ff3333');
+                logBattle(`Bạn vung Hắc Long Kiếm chém trúng Anderson, gây ${dmg} sát thương (+25 Ki).`, "damage");
+            } else if (skillType === 'kunai') {
+                playSFX('kunai');
+                battleState.playerKi -= 20;
+                const dmg = 25;
+                battleState.bossHP -= dmg;
+                battleState.bleedTurns = 2;
+                bossSprite.classList.add('boss-hit');
+                showDamageNumber(bossSprite, `-${dmg} ĐỘC`, '#ff8800');
+                logBattle(`Phi Đao Hắc Ám cắm phập vào ngực Anderson. Gây ${dmg} sát thương và làm xuất huyết.`, "damage");
+            } else if (skillType === 'dodge') {
+                playSFX('dodge');
+                battleState.playerKi -= 20;
+                battleState.isDodging = true;
+                logBattle(`Bạn kích hoạt Thân Pháp Ninja, hòa mình vào bóng tối sẵn sàng phản đòn.`, "dodge");
+            } else if (skillType === 'dragon') {
+                playSFX('dragon');
+                flashScreen();
+                triggerShake(600);
+                battleState.playerKi -= 40;
+                const dmg = Math.floor(Math.random() * 16) + 55;
+                battleState.bossHP -= dmg;
+                bossSprite.classList.add('boss-hit');
+                showDamageNumber(bossSprite, `CRIT -${dmg}`, '#00d2ff');
+                logBattle(`BÍ THUẬT LONG HỐNG. Kình lực rồng xanh xuyên thủng lồng ngực Anderson, gây ${dmg} sát thương cực mạnh.`, "heal");
+            } else if (skillType === 'heal') {
+                playSFX('heal');
+                battleState.playerKi -= 25;
+                const healAmt = 55;
+                battleState.playerHP = Math.min(battleState.playerMaxHP, battleState.playerHP + healAmt);
+                showDamageNumber(document.getElementById('player-status-box'), `+${healAmt} HP`, '#55ff77');
+                logBattle(`Vận Khí Công Hồi Xuân, kinh mạch lưu thông phục hồi ${healAmt} HP.`, "heal");
+            }
+
+            updateBattleHUD();
 
             setTimeout(() => {
-                if (type === 'bad') {
-                    bg.style.backgroundImage = "url('meat_bg.webp')";
-                    blood.style.opacity = '0.8';
-                    document.body.classList.add('shake');
-                    character.style.transform = "translateX(-50%) scale(1.5)";
-                    character.style.opacity = '0';
-                    
-                    setTimeout(() => {
-                        document.body.classList.remove('shake');
-                        endingScreen.style.opacity = '1';
-                        endingScreen.style.pointerEvents = 'auto';
-                        endingText.innerText = 'BẠN ĐÃ TRỞ THÀNH BỮA TỐI';
-                    }, 3000);
-                } else {
-                    character.style.opacity = '0';
-                    
-                    setTimeout(() => {
-                        endingScreen.style.opacity = '1';
-                        endingScreen.style.pointerEvents = 'auto';
-                        endingText.innerText = type === 'creepy_good' ? 'BẠN ĐÃ THOÁT CHẾT... NHƯNG SỰ ÁM ẢNH SẼ CÒN MÃI' : 'BẠN ĐÃ SỐNG SÓT';
-                        endingText.style.color = '#ffffff';
-                        endingText.style.textShadow = '0 0 10px #ffffff, 2px 2px 5px #000';
-                    }, 2000);
+                bossSprite.classList.remove('boss-hit');
+            }, 400);
+
+            if (battleState.bossHP <= 0) {
+                setTimeout(handleBossVictory, 800);
+                return;
+            }
+
+            if (battleState.bossHP <= 140 && !battleState.isBossEnraged) {
+                await triggerBossEnragedSequence();
+            }
+
+            setTimeout(executeBossTurn, 1000);
+        }
+
+        async function executeBossTurn() {
+            battleState.turnInProgress = true;
+            updateBattleHUD();
+
+            if (battleState.bleedTurns > 0) {
+                const bleedDmg = 15;
+                battleState.bossHP -= bleedDmg;
+                logBattle(`Vết thương độc làm Anderson mất thêm ${bleedDmg} máu.`, "damage");
+                battleState.bleedTurns--;
+                updateBattleHUD();
+
+                if (battleState.bossHP <= 0) {
+                    handleBossVictory();
+                    return;
                 }
-            }, 1000);
+
+                if (battleState.bossHP <= 140 && !battleState.isBossEnraged) {
+                    await triggerBossEnragedSequence();
+                }
+            }
+
+            const bossSprite = document.getElementById('battle-boss-sprite');
+
+            // Ultimate desperate move mechanic (<= 70 HP)
+            if (battleState.bossChargingUltimate) {
+                // Unleash ultimate attack
+                battleState.bossChargingUltimate = false;
+                battleState.hasUsedUltimate = true;
+
+                flashScreen();
+                triggerShake(900);
+
+                if (battleState.isDodging) {
+                    playSFX('dodge');
+                    logBattle("Anderson giáng trọn một kích hủy diệt long trời lở đất! Nhưng bạn đã kịp thời hòa vào hư ảnh của Thân Pháp Ninja, hoàn toàn tránh thoát sát thương!", "dodge");
+                } else {
+                    playSFX('desperation');
+                    playSFX('hit');
+                    const ultDmg = 100;
+                    battleState.playerHP -= ultDmg;
+                    showDamageNumber(document.getElementById('player-status-box'), `-${ultDmg} CRIT`, '#ff0000');
+                    logBattle(`Anderson gầm vang: 'HỦY DIỆT ĐI!' - Cực sát chiêu bộc phát cuồng nộ giáng thẳng vào bạn, gây ${ultDmg} sát thương chí mạng!`, "boss-act");
+                }
+            } else if (battleState.bossHP <= 70 && !battleState.hasUsedUltimate) {
+                // Enter charging turn
+                battleState.bossChargingUltimate = true;
+                battleState.turnInProgress = true;
+                updateBattleHUD();
+
+                triggerShake(800);
+                playSFX('desperation');
+                bossSprite.style.filter = "drop-shadow(0 0 80px #9400d3) contrast(1.7) brightness(1.2)";
+                logBattle("Anderson ngửa cổ cười the thé trong điên loạn: 'Ngươi nghĩ dồn được ta vào đường cùng sao?! ĐÃ QUÁ MUỘN ĐỂ CẦU XIN RỒI! HÃY NẾM TRẢI ÁC LINH DIỆT THẾ CỦA TA!'", "boss-act");
+                logBattle("Huyết khí và sương đen cuồn cuộn ngưng tụ quanh Anderson... Hắn đang vận tụ một luồng tà khí hủy diệt kinh hoàng!", "damage");
+
+                const bossDisplayName = battleState.isBossEnraged ? "Anderson - Hắc Lâm Tàn Sát Giả" : "Anderson";
+                await showBossSpeech(
+                    bossDisplayName,
+                    "TỤ KHÍ TUYỆT KỸ",
+                    "Ngươi nghĩ dồn được ta vào đường cùng sao?! ĐÃ QUÁ MUỘN RỒI! HÃY NẾM TRẢI ÁC LINH DIỆT THẾ! HẮC LÂM NÀY SẼ CHÔN VÙI TẤT CẢ!",
+                    5400
+                );
+
+                battleState.isDodging = false;
+                battleState.turnInProgress = false;
+                updateBattleHUD();
+                return;
+            } else {
+                const moves = ['rend', 'roar', 'devour'];
+                const move = moves[Math.floor(Math.random() * moves.length)];
+
+                triggerShake(400);
+
+                if (move === 'rend') {
+                    playSFX('rend');
+                    let dmg = Math.floor(Math.random() * 9) + 20;
+                    if (battleState.isBossEnraged) dmg = Math.floor(dmg * 1.35);
+
+                    if (battleState.isDodging) {
+                        playSFX('dodge');
+                        dmg = Math.floor(dmg * 0.4);
+                        const counterDmg = 22;
+                        battleState.bossHP -= counterDmg;
+                        logBattle(`Anderson gầm: 'CHẾT ĐI!' - Bạn lách người né đòn vuốt quỷ, chỉ mất ${dmg} HP và phản kích ${counterDmg} sát thương.`, "dodge");
+                        showDamageNumber(bossSprite, `-${counterDmg}`, '#00d2ff');
+
+                        if (battleState.bossHP <= 0) {
+                            handleBossVictory();
+                            return;
+                        }
+                        if (battleState.bossHP <= 140 && !battleState.isBossEnraged) {
+                            await triggerBossEnragedSequence();
+                        }
+                    } else {
+                        playSFX('hit');
+                        battleState.playerHP -= dmg;
+                        showDamageNumber(document.getElementById('player-status-box'), `-${dmg}`, '#ff1111');
+                        logBattle(`Anderson rít lên: 'CÁI ĐẦU NGƯƠI SẼ THUỘC VỀ TA!' - Vuốt quỷ cào xé gây ${dmg} sát thương.`, "boss-act");
+                    }
+                } else if (move === 'roar') {
+                    playSFX('roar');
+                    let dmg = 15;
+                    battleState.playerHP -= dmg;
+                    battleState.playerKi = Math.max(0, battleState.playerKi - 10);
+                    showDamageNumber(document.getElementById('player-status-box'), `-${dmg} HP (-10 Ki)`, '#ff5555');
+                    logBattle(`Anderson gầm rú: 'TIẾNG THÉT CỦA NGƯƠI SẼ NUÔI DƯỠNG BÓNG TỐI!' - Tiếng hét tử thần gây ${dmg} sát thương, giảm 10 Ki.`, "boss-act");
+                } else if (move === 'devour') {
+                    playSFX('bite');
+                    let dmg = 22;
+                    if (battleState.isBossEnraged) dmg = Math.floor(dmg * 1.3);
+
+                    if (battleState.isDodging) {
+                        dmg = Math.floor(dmg * 0.4);
+                        logBattle(`Anderson cười the thé: 'THỊT TƯƠI ĐÂY RỒI!' nhưng bạn đã né được hàm răng sắc nhọn. Chỉ mất ${dmg} HP.`, "dodge");
+                    } else {
+                        battleState.playerHP -= dmg;
+                        battleState.bossHP = Math.min(battleState.bossMaxHP, battleState.bossHP + 8);
+                        showDamageNumber(document.getElementById('player-status-box'), `-${dmg}`, '#ff1111');
+                        showDamageNumber(bossSprite, `+8 HP`, '#55ff77');
+                        logBattle(`Anderson ngoạm ngập răng: 'MÁU THẬT NGỌT NGÀO!' - Gây ${dmg} sát thương và hồi phục 8 HP.`, "boss-act");
+                    }
+                }
+            }
+
+            if (adminGodMode) {
+                battleState.playerHP = battleState.playerMaxHP;
+            }
+
+            battleState.isDodging = false;
+            updateBattleHUD();
+
+            if (battleState.playerHP <= 0) {
+                await handlePlayerDefeatSequence();
+            } else {
+                battleState.turnInProgress = false;
+                updateBattleHUD();
+            }
+        }
+
+        function handlePlayerDefeat() {
+            hideBossSpeech();
+            document.getElementById('battle-screen').style.display = 'none';
+            const charImg = document.getElementById('character');
+            charImg.src = '';
+            charImg.style.display = 'none';
+            charImg.style.opacity = '0';
+            charImg.classList.add('hidden');
+            flashScreen();
+            triggerShake(1200);
+            playSFX('screech');
+            const bg = document.getElementById('background');
+            const blood = document.getElementById('blood-overlay');
+            bg.style.backgroundImage = "url('assets/images/backgrounds/meat_bg.webp')";
+            blood.style.opacity = '1';
+
+            showEndingScreen(
+                "BẠN ĐÃ NGÃ XUỐNG DƯỚI TAY ANDERSON",
+                "Mặc dù đã cố gắng hết sức cùng các kỹ năng Ninja bí truyền, sức mạnh quái vật của Anderson vẫn quá áp đảo... Bóng tối nuốt chửng linh hồn bạn tại Tế Đàn Cổ.",
+                [
+                    { text: "Bắt Đầu Lại Đầu Chương", action: restartCurrentChapter },
+                    { text: "Chơi Lại Từ Đầu", action: startGame }
+                ]
+            );
+        }
+
+        function handleBossVictory() {
+            hideBossSpeech();
+            document.getElementById('battle-screen').style.display = 'none';
+            document.getElementById('ui-layer').style.display = 'block';
+            flashScreen();
+            triggerShake(1200);
+            playSFX('slash');
+            playBGM('victory');
+
+            renderNode(22);
+        }
+
+        function handleVictoryEnding() {
+            document.getElementById('ui-layer').style.display = 'none';
+            const charImg = document.getElementById('character');
+            charImg.src = '';
+            charImg.style.display = 'none';
+            charImg.style.opacity = '0';
+            charImg.classList.add('hidden');
+
+            flashScreen();
+            triggerShake(1200);
+            playSFX('heal');
+
+            const bg = document.getElementById('background');
+            bg.style.backgroundImage = "url('assets/images/backgrounds/ninja_dojo.jpeg')";
+
+            showEndingScreen(
+                "CHIẾN THẮNG HUY HOÀNG",
+                "Thanh Hắc Long Kiếm chém đứt xiềng xích của bóng tối. Ác quỷ Anderson đã tan biến vào cõi hư vô trong sự thanh thản và tiếc nuối muộn màng.\n\nNinja Đạo đích thân công nhận bạn là Đại Chiến Binh Bóng Tối mới. Ánh bình minh ấm áp sau bao năm tăm tối đã chiếu rọi khắp khu rừng. Cơn ác mộng đã chính thức khép lại!",
+                [
+                    { text: "Chơi Lại Toàn Bộ Câu Chuyện", action: startGame }
+                ],
+                true
+            );
         }
 
         function startGame() {
-            // Reset state
-            const bg = document.getElementById('background');
-            const blood = document.getElementById('blood-overlay');
-            const character = document.getElementById('character');
-            const endingScreen = document.getElementById('ending-screen');
-            const uiLayer = document.getElementById('ui-layer');
+            initSFX();
 
-            bg.style.backgroundImage = "url('darkforest_bg.jpg')";
-            blood.style.opacity = '0';
-            character.style.opacity = '1';
-            character.style.transform = "translateX(-50%) scale(1)";
-            endingScreen.style.opacity = '0';
-            endingScreen.style.pointerEvents = 'none';
-            uiLayer.style.display = 'block';
+            currentChapter = { type: 'node', id: 0 };
+            document.getElementById('ending-screen').style.opacity = '0';
+            document.getElementById('ending-screen').style.pointerEvents = 'none';
+            document.getElementById('chase-screen').style.display = 'none';
+            document.getElementById('battle-screen').style.display = 'none';
+            document.getElementById('ui-layer').style.display = 'block';
+            document.getElementById('blood-overlay').style.opacity = '0';
             document.body.classList.remove('shake');
 
-            clearTimeout(typeTimeout);
+            const bg = document.getElementById('background');
+            bg.style.backgroundImage = "url('assets/images/backgrounds/darkforest_bg.jpg')";
+            const charImg = document.getElementById('character');
+            charImg.style.opacity = '1';
+            charImg.classList.remove('hidden');
+
             renderNode(0);
         }
 
-        // Start the game on load
+        let adminKeySequence = '';
+        let adminGodMode = false;
+
+        function toggleAdminConsole(forceState) {
+            initSFX();
+            const modal = document.getElementById('admin-console');
+            const overlay = document.getElementById('admin-overlay');
+            if (!modal || !overlay) return;
+            const isActive = modal.classList.contains('active');
+            const targetState = (typeof forceState === 'boolean') ? forceState : !isActive;
+
+            if (targetState) {
+                modal.classList.add('active');
+                overlay.classList.add('active');
+            } else {
+                modal.classList.remove('active');
+                overlay.classList.remove('active');
+            }
+        }
+
+        function adminJumpChapter(chapterKey) {
+            toggleAdminConsole(false);
+            initSFX();
+
+            if (chaseRunning) {
+                chaseRunning = false;
+                if (chaseAnimId) cancelAnimationFrame(chaseAnimId);
+            }
+
+            document.getElementById('ending-screen').style.opacity = '0';
+            document.getElementById('ending-screen').style.pointerEvents = 'none';
+            document.getElementById('chase-screen').style.display = 'none';
+            document.getElementById('battle-screen').style.display = 'none';
+            document.getElementById('blood-overlay').style.opacity = '0';
+            document.body.classList.remove('shake');
+
+            const charImg = document.getElementById('character');
+            charImg.classList.remove('hidden');
+
+            if (chapterKey === 'ch1_start') {
+                document.getElementById('ui-layer').style.display = 'block';
+                renderNode(0);
+            } else if (chapterKey === 'ch1_maroa') {
+                document.getElementById('ui-layer').style.display = 'block';
+                renderNode('maroa_rescue');
+            } else if (chapterKey === 'ch2_house') {
+                document.getElementById('ui-layer').style.display = 'block';
+                renderNode(7);
+            } else if (chapterKey === 'ch2_angry') {
+                document.getElementById('ui-layer').style.display = 'block';
+                renderNode(11);
+            } else if (chapterKey === 'chase') {
+                startPlatformerChase();
+            } else if (chapterKey === 'ch3_dojo') {
+                document.getElementById('ui-layer').style.display = 'block';
+                renderNode(12);
+            } else if (chapterKey === 'ch3_skills') {
+                document.getElementById('ui-layer').style.display = 'block';
+                renderNode(16);
+            } else if (chapterKey === 'boss_dialogue') {
+                document.getElementById('ui-layer').style.display = 'block';
+                renderNode(17);
+            } else if (chapterKey === 'boss_battle') {
+                startBossBattle();
+            } else if (chapterKey === 'victory') {
+                handleBossVictory();
+            }
+        }
+
+        function adminCheat(type) {
+            initSFX();
+            if (type === 'godmode') {
+                adminGodMode = true;
+                battleState.playerHP = 999;
+                battleState.playerMaxHP = 999;
+                updateBattleHUD();
+                playSFX('heal');
+                logBattle("ADMIN CHEAT: Bất Tử Sinh Lực (999 HP).", "heal");
+            } else if (type === 'fullki') {
+                battleState.playerKi = 100;
+                updateBattleHUD();
+                playSFX('heal');
+                logBattle("ADMIN CHEAT: Chân Khí đã nạp đầy (100 Ki).", "heal");
+            } else if (type === 'onehit') {
+                battleState.bossHP = 1;
+                updateBattleHUD();
+                playSFX('slash');
+                logBattle("ADMIN CHEAT: Anderson suy kiệt, chỉ còn 1 HP!", "damage");
+            } else if (type === 'winchase') {
+                if (chaseRunning) {
+                    toggleAdminConsole(false);
+                    handleChaseSuccess();
+                } else {
+                    adminJumpChapter('ch3_dojo');
+                }
+            }
+        }
+
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const modal = document.getElementById('admin-console');
+                if (modal && modal.classList.contains('active')) {
+                    toggleAdminConsole(false);
+                    return;
+                }
+            }
+
+            if (e.key && e.key.length === 1) {
+                adminKeySequence += e.key.toLowerCase();
+                if (adminKeySequence.length > 20) {
+                    adminKeySequence = adminKeySequence.slice(-20);
+                }
+                if (adminKeySequence.endsWith('admin')) {
+                    toggleAdminConsole();
+                    adminKeySequence = '';
+                }
+            }
+        });
+
         window.onload = startGame;
     </script>
 </body>
