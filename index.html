@@ -3714,8 +3714,8 @@
             if (slashBtn) slashBtn.disabled = !canAct;
             document.getElementById('skill-kunai-btn').disabled = !canAct || battleState.playerKi < 20;
             document.getElementById('skill-dodge-btn').disabled = !canAct || battleState.playerKi < 20;
-            document.getElementById('skill-dragon-btn').disabled = !canAct || battleState.playerKi < 40;
-            document.getElementById('skill-heal-btn').disabled = !canAct || battleState.playerKi < 25;
+            document.getElementById('skill-dragon-btn').disabled = !canAct || battleState.playerKi < 50;
+            document.getElementById('skill-heal-btn').disabled = !canAct || battleState.playerKi < 30;
         }
 
         function showDamageNumber(targetElem, text, color = '#ff3333') {
