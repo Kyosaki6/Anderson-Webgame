@@ -322,6 +322,9 @@ function handleChaseHit() {
 }
 
 function handleChaseCaught(reason) {
+    if (typeof unlockAchievement === 'function') {
+        unlockAchievement('ach_end_chase_fail');
+    }
     chaseRunning = false;
     cancelAnimationFrame(chaseAnimId);
 

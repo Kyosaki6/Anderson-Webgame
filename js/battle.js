@@ -447,6 +447,9 @@ async function executeBossTurn() {
 }
 
 function handlePlayerDefeat() {
+    if (typeof unlockAchievement === 'function') {
+        unlockAchievement('ach_end_boss_defeat');
+    }
     hideBossSpeech();
     document.getElementById('battle-screen').style.display = 'none';
     const charImg = document.getElementById('character');
@@ -491,6 +494,9 @@ function handleVictoryEnding() {
     recordChapterCompleted('ch3');
     recordChapterCompleted('boss');
     recordChapterCompleted('victory');
+    if (typeof unlockAchievement === 'function') {
+        unlockAchievement('ach_end_victory');
+    }
     document.getElementById('ui-layer').style.display = 'none';
     const charImg = document.getElementById('character');
     charImg.src = '';
