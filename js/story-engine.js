@@ -153,7 +153,10 @@ async function renderNode(nodeId) {
     });
 }
 
-        function handleAndersonBadEnding() {
+function handleAndersonBadEnding() {
+    if (typeof unlockAchievement === 'function') {
+        unlockAchievement('ach_end_anderson_bad');
+    }
     document.getElementById('ui-layer').style.display = 'none';
     const charImg = document.getElementById('character');
     charImg.src = '';
@@ -180,6 +183,9 @@ async function renderNode(nodeId) {
 }
 
 function handleSleepEnding() {
+    if (typeof unlockAchievement === 'function') {
+        unlockAchievement('ach_end_sleep');
+    }
     document.getElementById('ui-layer').style.display = 'none';
     document.getElementById('character').classList.add('hidden');
     const bg = document.getElementById('background');

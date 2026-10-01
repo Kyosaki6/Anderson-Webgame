@@ -141,6 +141,14 @@ function adminCheat(type) {
         updateChapterBadge();
         playSFX('heal');
         showGameToast("ADMIN CHEAT: Đã mở khóa toàn bộ chọn chương!");
+    } else if (type === 'unlock_achievements') {
+        if (typeof cheatUnlockAllAchievements === 'function') {
+            cheatUnlockAllAchievements();
+        }
+    } else if (type === 'reset_achievements') {
+        if (typeof cheatResetAchievements === 'function') {
+            cheatResetAchievements();
+        }
     }
 }
 
@@ -154,6 +162,11 @@ window.addEventListener('keydown', (e) => {
         const chapterModal = document.getElementById('chapter-select-modal');
         if (chapterModal && chapterModal.classList.contains('active')) {
             closeChapterSelectModal();
+            return;
+        }
+        const achModal = document.getElementById('achievement-modal');
+        if (achModal && achModal.classList.contains('active')) {
+            closeAchievementModal();
             return;
         }
         const modal = document.getElementById('admin-console');
@@ -175,4 +188,12 @@ window.addEventListener('keydown', (e) => {
     }
 });
 
-window.onload = startGame;
+window.onload = () => {
+    if (typeof syncExistingProgressAchievements === 'function') {
+        syncExistingProgressAchievements();
+    }
+    if (typeof updateAchievementButtonBadge === 'function') {
+        updateAchievementButtonBadge();
+    }
+    startGame();
+};
