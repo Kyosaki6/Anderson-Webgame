@@ -170,6 +170,7 @@ body, html {
     font-weight: bold;
     letter-spacing: 2px;
     text-shadow: 0 0 10px rgba(255, 0, 0, 0.7);
+    border: none;
     border-left: 3px solid var(--accent-red);
     padding: 4px 12px;
     border-radius: 0 6px 6px 0;
@@ -178,7 +179,17 @@ body, html {
     gap: 10px;
     transition: all 0.25s ease;
     user-select: none;
+    -webkit-user-select: none;
     background: rgba(0, 0, 0, 0.35);
+    font-family: inherit;
+    cursor: pointer;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: rgba(255, 50, 50, 0.3);
+    outline: none;
+}
+
+#chapter-badge:active {
+    transform: scale(0.97);
 }
 
 #chapter-badge.clickable-chapter {
@@ -381,10 +392,108 @@ body, html {
 .chapter-modal-body {
     padding: 16px 20px;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
+    overscroll-behavior: contain;
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
     gap: 14px;
-    max-height: calc(88vh - 120px);
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
+/* Chapter Confirm Dialog */
+.chapter-confirm-dialog {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.88);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9995;
+    padding: 16px;
+    box-sizing: border-box;
+    backdrop-filter: blur(4px);
+    transition: opacity 0.2s ease;
+}
+
+.chapter-confirm-dialog.hidden {
+    display: none;
+}
+
+.chapter-confirm-box {
+    background: #140909;
+    border: 2px solid var(--accent-red);
+    border-radius: 8px;
+    padding: 22px;
+    max-width: 420px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 0 35px rgba(255, 0, 0, 0.65);
+    animation: fadeIn 0.25s ease-out;
+}
+
+.chapter-confirm-title {
+    color: #ff4d4d;
+    font-size: 1.15rem;
+    font-weight: bold;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+    text-shadow: 0 0 10px rgba(255, 60, 60, 0.6);
+}
+
+.chapter-confirm-msg {
+    color: #ddd;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin-bottom: 20px;
+}
+
+.chapter-confirm-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+.chapter-confirm-btn {
+    padding: 10px 18px;
+    border-radius: 6px;
+    font-weight: bold;
+    font-size: 0.9rem;
+    cursor: pointer;
+    font-family: inherit;
+    border: 1px solid transparent;
+    min-height: 44px;
+    touch-action: manipulation;
+    transition: all 0.2s ease;
+}
+
+.chapter-confirm-btn.confirm {
+    background: rgba(255, 40, 40, 0.3);
+    border-color: #ff4444;
+    color: #fff;
+    box-shadow: 0 0 10px rgba(255, 0, 0, 0.3);
+}
+
+.chapter-confirm-btn.confirm:hover,
+.chapter-confirm-btn.confirm:active {
+    background: #ff3333;
+    color: #000;
+}
+
+.chapter-confirm-btn.cancel {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: #666;
+    color: #ccc;
+}
+
+.chapter-confirm-btn.cancel:hover,
+.chapter-confirm-btn.cancel:active {
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
 }
 
 .chapter-card {
@@ -1217,26 +1326,122 @@ body, html {
 
     /* Responsive Top Bar & Chapter Select */
     #top-bar {
-        padding: 8px 10px;
+        padding: max(8px, env(safe-area-inset-top, 8px)) max(10px, env(safe-area-inset-right, 10px)) 8px max(10px, env(safe-area-inset-left, 10px));
+        gap: 8px;
     }
     #chapter-badge {
-        font-size: 0.85rem;
+        font-size: 0.82rem;
         letter-spacing: 0.5px;
-        padding: 3px 8px;
+        padding: 6px 10px;
         gap: 6px;
+        min-height: 40px;
+        max-width: calc(100% - 130px);
+        box-sizing: border-box;
+    }
+    .chapter-badge-text {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
     .chapter-select-pill {
         font-size: 0.65rem;
-        padding: 1px 6px;
+        padding: 2px 6px;
+        flex-shrink: 0;
+        white-space: nowrap;
     }
     #chapter-select-modal {
-        width: 96%;
-        max-height: 92vh;
+        width: 95%;
+        max-width: 95vw;
+        max-height: 90vh;
+        max-height: 90dvh;
+        border-radius: 8px;
+    }
+    .chapter-modal-header {
+        padding: 10px 14px;
+    }
+    .chapter-modal-title {
+        font-size: 1rem;
+        letter-spacing: 1px;
+    }
+    .chapter-modal-close-btn {
+        padding: 6px 12px;
+        min-height: 38px;
+        font-size: 0.85rem;
+    }
+    .chapter-modal-toolbar {
+        padding: 8px 12px;
+        gap: 8px;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .chapter-progress-stat {
+        font-size: 0.78rem;
+    }
+    .chapter-unlock-all-btn {
+        padding: 6px 10px;
+        font-size: 0.74rem;
+        min-height: 36px;
     }
     .chapter-modal-body {
         grid-template-columns: 1fr;
+        padding: 10px 12px;
+        gap: 12px;
+        flex: 1 1 auto;
+        min-height: 0;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        touch-action: pan-y;
+        overscroll-behavior: contain;
+    }
+    .chapter-card {
         padding: 12px;
-        gap: 10px;
+        cursor: pointer;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: rgba(255, 50, 50, 0.2);
+    }
+    .chapter-card:active {
+        transform: scale(0.99);
+    }
+    .chapter-card-title {
+        font-size: 1.05rem;
+        margin: 6px 0;
+    }
+    .chapter-card-desc {
+        font-size: 0.85rem;
+        margin-bottom: 12px;
+        line-height: 1.4;
+    }
+    .chapter-card-actions {
+        gap: 8px;
+    }
+    .chapter-jump-btn {
+        padding: 11px 12px;
+        min-height: 44px;
+        font-size: 0.88rem;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: rgba(255, 50, 50, 0.4);
+    }
+    .chapter-jump-btn:active {
+        transform: scale(0.97);
+        background: rgba(255, 50, 50, 0.5);
+    }
+    .chapter-jump-btn.sub-btn {
+        padding: 9px 10px;
+        min-height: 40px;
+        font-size: 0.82rem;
+    }
+    .chapter-confirm-box {
+        padding: 18px 14px;
+        max-width: 90vw;
+    }
+    .chapter-confirm-btn {
+        min-height: 44px;
+        padding: 10px 14px;
+        font-size: 0.85rem;
     }
     #game-toast {
         font-size: 0.78rem;
@@ -1363,6 +1568,27 @@ body, html {
 }
 
 @media (max-height: 600px) {
+    #chapter-select-modal {
+        max-height: 94vh;
+        max-height: 94dvh;
+    }
+    .chapter-modal-body {
+        grid-template-columns: repeat(2, 1fr) !important;
+        padding: 8px 12px;
+        gap: 8px;
+    }
+    .chapter-card {
+        padding: 8px 10px;
+    }
+    .chapter-card-desc {
+        font-size: 0.8rem;
+        margin-bottom: 8px;
+    }
+    .chapter-jump-btn {
+        padding: 7px 10px;
+        min-height: 38px;
+        font-size: 0.82rem;
+    }
     #boss-hud {
         padding: 28px 8px 2px;
     }

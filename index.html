@@ -15,9 +15,10 @@
         <div id="flash-overlay"></div>
 
         <div id="top-bar">
-            <div id="chapter-badge" onclick="handleChapterBadgeClick()" title="Chọn Chương">
+            <button id="chapter-badge" class="clickable-chapter" onclick="handleChapterBadgeClick()" title="Chọn Chương" aria-label="Chọn Chương">
                 <span class="chapter-badge-text">CHƯƠNG 1: BÓNG MA TRONG RỪNG</span>
-            </div>
+                <span class="chapter-select-pill">&#9662; CHỌN CHƯƠNG</span>
+            </button>
             <button id="audio-btn" onclick="toggleAudio()">ÂM THANH: BẬT</button>
         </div>
 
@@ -167,7 +168,7 @@
                 <div class="chapter-modal-title">
                     <span>&#128214;</span> CHỌN CHƯƠNG TRUYỆN
                 </div>
-                <button class="chapter-modal-close-btn" onclick="closeChapterSelectModal()">ĐÓNG [ESC]</button>
+                <button class="chapter-modal-close-btn" onclick="closeChapterSelectModal()" aria-label="Đóng chọn chương">&#10005; ĐÓNG</button>
             </div>
             <div class="chapter-modal-toolbar">
                 <div class="chapter-progress-stat" id="chapter-progress-stat">
@@ -178,6 +179,16 @@
                 </button>
             </div>
             <div class="chapter-modal-body" id="chapter-cards-grid"></div>
+            <div id="chapter-confirm-dialog" class="chapter-confirm-dialog hidden">
+                <div class="chapter-confirm-box">
+                    <div class="chapter-confirm-title">&#9876; CHUYỂN CHƯƠNG TRUYỆN</div>
+                    <div class="chapter-confirm-msg" id="chapter-confirm-msg">Chương này chưa mở khóa theo tiến độ. Bạn có muốn chuyển thẳng tới chương này không?</div>
+                    <div class="chapter-confirm-actions">
+                        <button type="button" class="chapter-confirm-btn confirm" id="chapter-confirm-ok">&#9876; CHUYỂN TỚI</button>
+                        <button type="button" class="chapter-confirm-btn cancel" id="chapter-confirm-cancel" onclick="hideChapterConfirm()">QUAY LẠI</button>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div id="admin-overlay" onclick="toggleAdminConsole(false)"></div>

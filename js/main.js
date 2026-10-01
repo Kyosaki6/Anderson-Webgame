@@ -146,6 +146,11 @@ function adminCheat(type) {
 
 window.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
+        const confirmDialog = document.getElementById('chapter-confirm-dialog');
+        if (confirmDialog && !confirmDialog.classList.contains('hidden')) {
+            hideChapterConfirm();
+            return;
+        }
         const chapterModal = document.getElementById('chapter-select-modal');
         if (chapterModal && chapterModal.classList.contains('active')) {
             closeChapterSelectModal();

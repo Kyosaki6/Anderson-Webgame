@@ -127,37 +127,59 @@ function recordChapterProgress(chapterId) {
 }
 
 let currentBadgeTitle = "CHƯƠNG 1: BÓNG MA TRONG RỪNG";
+let pendingChapterKey = null;
+
+function showChapterConfirm(chapterKey) {
+    pendingChapterKey = chapterKey;
+    const dialog = document.getElementById('chapter-confirm-dialog');
+    if (!dialog) {
+        if (confirm("Chương này chưa mở khóa theo tiến độ cốt truyện. Bạn có muốn chuyển thẳng tới chương này không?")) {
+            closeChapterSelectModal();
+            jumpToChapter(chapterKey);
+        }
+        return;
+    }
+    const okBtn = document.getElementById('chapter-confirm-ok');
+    if (okBtn) {
+        okBtn.onclick = () => {
+            const keyToJump = pendingChapterKey;
+            hideChapterConfirm();
+            closeChapterSelectModal();
+            if (keyToJump) {
+                jumpToChapter(keyToJump);
+            }
+        };
+    }
+    dialog.classList.remove('hidden');
+}
+
+function hideChapterConfirm() {
+    pendingChapterKey = null;
+    const dialog = document.getElementById('chapter-confirm-dialog');
+    if (dialog) dialog.classList.add('hidden');
+}
 
 function updateChapterBadge(title) {
     if (title) currentBadgeTitle = title;
     const badge = document.getElementById('chapter-badge');
     if (!badge) return;
 
-    const unlocked = hasPlayedThroughChapter();
-    if (unlocked) {
-        badge.className = 'clickable-chapter';
-        badge.title = "Nhấn để chọn chương bạn muốn chơi";
-        badge.innerHTML = `<span class="chapter-badge-text">${currentBadgeTitle}</span><span class="chapter-select-pill">&#9662; CHỌN CHƯƠNG</span>`;
-    } else {
-        badge.className = 'locked-chapter';
-        badge.title = "Hoàn thành ít nhất một chương để mở khóa Chọn Chương";
-        badge.innerHTML = `<span class="chapter-badge-text">${currentBadgeTitle}</span><span class="chapter-lock-pill" title="Chưa mở khóa">&#128274;</span>`;
-    }
+    badge.className = 'clickable-chapter';
+    badge.setAttribute('role', 'button');
+    badge.setAttribute('tabindex', '0');
+    badge.title = "Nhấn để chọn chương truyện";
+    badge.innerHTML = `<span class="chapter-badge-text">${currentBadgeTitle}</span><span class="chapter-select-pill">&#9662; CHỌN CHƯƠNG</span>`;
 }
 
 function handleChapterBadgeClick() {
     initSFX();
-    if (!hasPlayedThroughChapter()) {
-        playSFX('screech');
-        showGameToast("🔒 Bạn cần chơi qua ít nhất một chương để mở khóa tính năng Chọn Chương!");
-        return;
-    }
     playSFX('dodge');
     openChapterSelectModal();
 }
 
 function openChapterSelectModal() {
     initSFX();
+    hideChapterConfirm();
     const modal = document.getElementById('chapter-select-modal');
     const overlay = document.getElementById('chapter-modal-overlay');
     if (!modal || !overlay) return;
@@ -168,6 +190,7 @@ function openChapterSelectModal() {
 
 function closeChapterSelectModal() {
     initSFX();
+    hideChapterConfirm();
     const modal = document.getElementById('chapter-select-modal');
     const overlay = document.getElementById('chapter-modal-overlay');
     if (modal) modal.classList.remove('active');
@@ -193,12 +216,19 @@ function toggleUnlockAllChapters() {
     } catch (e) {}
 }
 
+function handleCardClick(event, defaultKey, isUnlocked) {
+    if (event.target.closest('button')) return;
+    selectChapterFromModal(defaultKey, isUnlocked);
+}
+
 function selectChapterFromModal(chapterKey, isUnlocked) {
     initSFX();
-    if (!isUnlocked && localStorage.getItem('webg_unlock_all') !== 'true') {
-        const confirmed = confirm("Bạn chưa vượt qua chương này trong cốt truyện. Bạn có muốn chuyển thẳng tới chương này không?");
-        if (!confirmed) return;
+    const isUnlockAll = (localStorage.getItem('webg_unlock_all') === 'true');
+    if (!isUnlocked && !isUnlockAll) {
+        showChapterConfirm(chapterKey);
+        return;
     }
+    hideChapterConfirm();
     closeChapterSelectModal();
     jumpToChapter(chapterKey);
 }
@@ -260,14 +290,14 @@ function renderChapterCards() {
                 : (isChapUnlocked ? 'chapter-jump-btn sub-btn' : 'chapter-jump-btn sub-btn btn-locked');
 
             buttonsHtml += `
-                <button class="${btnClass}" onclick="selectChapterFromModal('${opt.key}', ${isChapUnlocked})">
+                <button type="button" class="${btnClass}" onclick="event.stopPropagation(); selectChapterFromModal('${opt.key}', ${isChapUnlocked})">
                     ${opt.label} ${!isChapUnlocked ? ' [Chưa Qua]' : ''}
                 </button>
             `;
         });
 
         html += `
-            <div class="chapter-card ${isChapUnlocked ? 'unlocked' : 'locked'} ${isCurrent ? 'current-playing' : ''}" style="background-image: linear-gradient(rgba(10, 5, 5, 0.9), rgba(10, 5, 5, 0.92)), url('${chap.bg}');">
+            <div class="chapter-card ${isChapUnlocked ? 'unlocked' : 'locked'} ${isCurrent ? 'current-playing' : ''}" onclick="handleCardClick(event, '${chap.subOptions[0].key}', ${isChapUnlocked})" style="background-image: linear-gradient(rgba(10, 5, 5, 0.9), rgba(10, 5, 5, 0.92)), url('${chap.bg}');">
                 <div class="chapter-card-header">
                     <span class="chapter-badge-tag-label">${chap.badge}</span>
                     ${statusBadge}

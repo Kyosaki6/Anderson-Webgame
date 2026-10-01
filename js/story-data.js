@@ -60,7 +60,7 @@ const storyNodes = {
         },
         text: `Một lựa chọn ngu ngốc... Ta rất thích những con mồi biết giãy giụa. Tiếng thét của cậu sẽ là bản nhạc tuyệt vời nhất đêm nay.`,
         choices: [
-            { text: "Anderson lao tới trong tuyệt vọng...", next: "ending_anderson_bad", primary: true }
+            { text: "Anderson gầm lên, lao tới xé xác bạn...", next: "ending_anderson_bad", primary: true }
         ]
     },
     4: {
