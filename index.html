@@ -19,10 +19,31 @@
                 <span class="chapter-badge-text">CHƯƠNG 1: BÓNG MA TRONG RỪNG</span>
                 <span class="chapter-select-pill">&#9662; CHỌN CHƯƠNG</span>
             </button>
-            <button id="audio-btn" onclick="toggleAudio()">ÂM THANH: BẬT</button>
+            <div class="top-bar-actions">
+                <button id="achievement-btn" onclick="openAchievementModal()" title="Danh Sách Thành Tựu" aria-label="Danh Sách Thành Tựu">
+                    <span class="ach-btn-icon">🏆</span>
+                    <span class="ach-btn-text">THÀNH TỰU</span>
+                    <span id="ach-badge-counter" class="ach-badge-counter">0/12</span>
+                </button>
+                <button id="audio-btn" onclick="toggleAudio()">ÂM THANH: BẬT</button>
+            </div>
         </div>
 
         <div id="game-toast"></div>
+
+        <div id="achievement-toast" class="achievement-toast" onclick="openAchievementModal()" title="Bấm để xem Bảng Thành Tựu">
+            <div class="ach-toast-icon-wrapper">
+                <img id="ach-toast-img" class="ach-toast-img" src="assets/images/achievements/placeholder.png" alt="Thành tựu" onerror="this.src='assets/images/achievements/placeholder.png'">
+            </div>
+            <div class="ach-toast-content">
+                <div class="ach-toast-header">
+                    <span class="ach-toast-kicker">THÀNH TỰU MỚI!</span>
+                    <span class="ach-toast-badge" id="ach-toast-badge">CHƯƠNG 1</span>
+                </div>
+                <div class="ach-toast-title" id="ach-toast-title">Bóng Ma Trong Rừng</div>
+                <div class="ach-toast-desc" id="ach-toast-desc">Sống sót qua cuộc chạm trán ban đầu...</div>
+            </div>
+        </div>
 
         <img id="character" src="assets/images/characters/anderson_char.webp" alt="Character">
 
@@ -191,6 +212,33 @@
             </div>
         </div>
 
+        <div id="achievement-modal-overlay" onclick="closeAchievementModal()"></div>
+        <div id="achievement-modal">
+            <div class="ach-modal-header">
+                <div class="ach-modal-title">
+                    <span>🏆</span> BẢNG THÀNH TỰU
+                </div>
+                <button class="ach-modal-close-btn" onclick="closeAchievementModal()" aria-label="Đóng bảng thành tựu">&#10005; ĐÓNG</button>
+            </div>
+            <div class="ach-modal-toolbar">
+                <div class="ach-progress-container">
+                    <div class="ach-progress-stat" id="ach-progress-stat">
+                        Đã hoàn thành: <span>0 / 12</span> (0%)
+                    </div>
+                    <div class="ach-progress-track">
+                        <div id="ach-progress-fill" class="ach-progress-fill" style="width: 0%;"></div>
+                    </div>
+                </div>
+                <div class="ach-tabs">
+                    <button class="ach-tab-btn active" data-tab="all" onclick="setAchievementTab('all')">TẤT CẢ (12)</button>
+                    <button class="ach-tab-btn" data-tab="chapter" onclick="setAchievementTab('chapter')">CHƯƠNG HỒI (6)</button>
+                    <button class="ach-tab-btn" data-tab="ending" onclick="setAchievementTab('ending')">KẾT CỤC (5)</button>
+                    <button class="ach-tab-btn" data-tab="special" onclick="setAchievementTab('special')">ĐẶC BIỆT (1)</button>
+                </div>
+            </div>
+            <div class="ach-modal-body" id="achievements-grid"></div>
+        </div>
+
         <div id="admin-overlay" onclick="toggleAdminConsole(false)"></div>
         <div id="admin-console">
             <div id="admin-header">
@@ -266,6 +314,14 @@
                         <strong>Mở Khóa Toàn Bộ Chọn Chương</strong>
                         Mở khóa tính năng và tất cả các chương
                     </button>
+                    <button class="admin-btn cheat" onclick="cheatUnlockAllAchievements()">
+                        <strong>Mở Khóa Toàn Bộ Thành Tựu</strong>
+                        Mở đủ 12 thành tựu chương & kết cục
+                    </button>
+                    <button class="admin-btn cheat" onclick="cheatResetAchievements()">
+                        <strong>Đặt Lại Toàn Bộ Thành Tựu</strong>
+                        Xóa lịch sử thành tựu để thử nghiệm
+                    </button>
                 </div>
             </div>
             <div id="admin-footer-note">
@@ -277,6 +333,7 @@
     <script src="js/story-data.js"></script>
     <script src="js/ui.js"></script>
     <script src="js/chapters.js"></script>
+    <script src="js/achievements.js"></script>
     <script src="js/story-engine.js"></script>
     <script src="js/chase.js"></script>
     <script src="js/battle.js"></script>
