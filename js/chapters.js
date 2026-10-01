@@ -114,6 +114,20 @@ function recordChapterCompleted(chapterId) {
     }
     setHasPlayedThrough(true);
     updateChapterBadge();
+
+    if (typeof unlockAchievement === 'function') {
+        const achMap = {
+            'ch1': 'ach_ch1',
+            'ch2': 'ach_ch2',
+            'chase': 'ach_chase',
+            'ch3': 'ach_ch3',
+            'boss': 'ach_boss',
+            'victory': 'ach_victory'
+        };
+        if (achMap[chapterId]) {
+            unlockAchievement(achMap[chapterId]);
+        }
+    }
 }
 
 function recordChapterProgress(chapterId) {
